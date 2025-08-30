@@ -1,6 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Utilidad para instanciar prefabs (robots, joyas, zona, obstáculos) en posiciones de celda,
+/// resolviendo la conversión a coordenadas de mundo y registrando la ocupación.
+/// </summary>
+/// <remarks>
+/// Interacciones:
+/// - Llamado por <see cref="SpawnSystem"/> para crear entidades del escenario.
+/// - Actualiza <see cref="GridService"/> (ocupación) y devuelve referencias a MB creados.
+/// </remarks>
 public class GridSpawner : MonoBehaviour
 {
     [Header("Referencias")]
