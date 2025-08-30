@@ -9,7 +9,7 @@ public static class QATestingSystem
 
     public static void TestGridCell()
     {
-        Debug.Log("[QATestingSystem] Iniciando pruebas para GridCell.");
+        Debug.Log("[QATestingSystem] Starting tests for GridCell.");
 
         // Prueba de creación de celdas
         var cell = new GridCell(CellType.Empty);
