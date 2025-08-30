@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TestGridCell : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Triggers the grid cell testing system when the MonoBehaviour is created
     void Start()
     {
         QATestingSystem.TestGridCell();
