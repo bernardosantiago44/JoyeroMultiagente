@@ -28,6 +28,6 @@ public static class QATestingSystem
         cell.SetType(CellType.Wall);
         UnityEngine.Debug.Log(cell.IsWalkableNow); // false por tipo (muro)
 
-        Debug.Log("[QATestingSystem] Todas las pruebas para GridCell completadas.");
+        Debug.Log("[QATestingSystem] All tests for GridCell completed.");
     }
 }
