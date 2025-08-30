@@ -1,16 +1,16 @@
 using UnityEngine;
 
-public class ZoneController : MonoBehaviour
+/// <summary>
+/// Define una zona de entrega/objetivo del mapa donde los robots depositan joyas.
+/// Puede validar drops, sumar puntaje y notificar eventos de entrega.
+/// </summary>
+/// <remarks>
+/// Interacciones:
+/// - Consultada por <see cref="GridService"/> para ocupación y tipo de celda.
+/// - Recibe eventos desde <see cref="RobotController"/> al hacer "Drop".
+/// - Puede informar a <see cref="MetricsLogger"/> y activar condiciones de fin en <see cref="RuleSystem"/>.
+/// </remarks>
+public sealed class ZoneController : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }

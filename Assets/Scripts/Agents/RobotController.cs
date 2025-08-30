@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class RobotController : MonoBehaviour
+/// <summary>
+/// Controlador del robot. Implementa la máquina de estados (Idle/Explore/GoToJewel/…),
+/// coordina percepción, pathfinding y acciones atómicas (mover, recoger, dejar).
+/// </summary>
+/// <remarks>
+/// Interacciones:
+/// - Implementa <see cref="IAgent"/> y es orquestado por <see cref="SimulationManager"/>.
+/// - Usa <see cref="PathfindingComponent"/> y consulta <see cref="GridService"/>.
+/// - Respeta reglas globales de <see cref="RuleSystem"/> y reporta a <see cref="MetricsLogger"/>.
+/// </remarks>
+public sealed class RobotController : MonoBehaviour, IAgent
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public int Id => 0;
+    public Vector2Int Cell => default;
+    public void Tick() { }
+    public void PlanNextAction() { }
 }
