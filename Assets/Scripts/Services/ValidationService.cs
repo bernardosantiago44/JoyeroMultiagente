@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class ValidationService : MonoBehaviour
+/// <summary>
+/// Ejecuta validaciones de arranque y consistencia del mundo:
+/// conectividad básica, densidades válidas, posiciones no solapadas, etc.
+/// </summary>
+/// <remarks>
+/// Interacciones:
+/// - Invocado por <see cref="GameBootstrap"/> tras el spawning.
+/// - Puede usar <see cref="GridService"/> para inspección y emitir advertencias/errores.
+/// </remarks>
+public sealed class ValidationService
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
