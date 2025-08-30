@@ -909,6 +909,63 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f8d73908c687f4379be8c1a952f0533c, type: 3}
   m_PrefabInstance: {fileID: 1116259749}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1262297880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1262297882}
+  - component: {fileID: 1262297881}
+  - component: {fileID: 1262297883}
+  m_Layer: 0
+  m_Name: QATestingSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1262297881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262297880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 709d68e0e320941c3bfa643eb4373118, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1262297882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262297880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.3128123, y: 3.1814165, z: -5.524341}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1262297883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1262297880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7ec000ee6e8a45a7a806f58e13bb093, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1291156924
 GameObject:
   m_ObjectHideFlags: 0
@@ -1520,3 +1577,4 @@ SceneRoots:
   - {fileID: 1379625185}
   - {fileID: 2060067927}
   - {fileID: 1967256455}
+  - {fileID: 1262297882}
