@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class SimulationManager : MonoBehaviour
+/// <summary>
+/// Orquestador principal de estados de la simulación (Init/Running/Paused/Finished),
+/// controla el loop de ticks y los reseteos/replays.
+/// </summary>
+/// <remarks>
+/// Interacciones:
+/// - Coordina <see cref="SpawnSystem"/>, <see cref="RuleSystem"/> y notifica a UI.
+/// - Itera <see cref="IAgent.Tick"/> y decide cuándo pedir <see cref="IAgent.PlanNextAction"/>.
+/// </remarks>
+public sealed class SimulationManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
         
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-}

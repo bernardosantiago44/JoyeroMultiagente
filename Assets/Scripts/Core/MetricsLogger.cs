@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class MetricsLogger : MonoBehaviour
+/// <summary>
+/// Servicio/MB que acumula KPIs de la simulación (movimientos, tiempo por acción,
+/// joyas recogidas/entregadas, eficiencia) y los expone a UI o exporta.
+/// </summary>
+/// <remarks>
+/// Interacciones:
+/// - Recibe eventos desde <see cref="RobotController"/> y <see cref="ZoneController"/>.
+/// - Consultado por UI y por <see cref="SimulationManager"/> para fin de simulación.
+/// </remarks>
+public sealed class MetricsLogger : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
