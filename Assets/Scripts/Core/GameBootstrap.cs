@@ -49,10 +49,7 @@ public sealed class GameBootstrap : MonoBehaviour
             {
             if (_validationService != null)
             {
-                // Fixme: Implementar validaciones
-                // En este issue, la validación puede ser trivial (dimensiones > 0 cuando existan).
-                // Dejará de ser trivial cuando agreguemos Grid.
-                // _validationService.RunAll();  // Descomentar cuando tenga implementación
+                Debug.LogWarning("[GameBootstrap] Validación no implementada aún. Saltando validaciones iniciales.");
             }
             }
             catch (System.Exception ex)
