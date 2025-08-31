@@ -308,9 +308,16 @@ public static class QATestingSystem
         Debug.Assert(renderer != null, "[QATestingSystem] Error: GridRenderer should have default color settings.");
         Debug.Log("[QATestingSystem] ✓ GridRenderer color configuration test passed.");
 
+        // Test 5: GridRendererDemo can be created and works
+        var demoObject = new GameObject("TestGridRendererDemo");
+        var demo = demoObject.AddComponent<GridRendererDemo>();
+        Debug.Assert(demo != null, "[QATestingSystem] Error: GridRendererDemo component could not be created.");
+        Debug.Log("[QATestingSystem] ✓ GridRendererDemo creation test passed.");
+
         // Clean up
         Object.DestroyImmediate(gameObject);
         Object.DestroyImmediate(gameObjectWithService);
+        Object.DestroyImmediate(demoObject);
         ServiceRegistry.Clear();
 
         Debug.Log("[QATestingSystem] All tests for GridRenderer completed successfully.");
