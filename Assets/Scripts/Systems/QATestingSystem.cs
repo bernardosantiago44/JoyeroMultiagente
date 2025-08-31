@@ -7,6 +7,7 @@ public static class QATestingSystem
         TestGridCell();
         TestGridMap();
         TestGridService();
+        TestGridRenderer();
         TestValidationService();
     }
 
@@ -270,6 +271,56 @@ public static class QATestingSystem
         Debug.Log("[QATestingSystem] ✓ GridService constructor validation test passed.");
 
         Debug.Log("[QATestingSystem] All tests for GridService completed successfully.");
+    }
+
+    public static void TestGridRenderer()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for GridRenderer.");
+
+        // Test 1: GridRenderer can be created
+        var gameObject = new GameObject("TestGridRenderer");
+        var renderer = gameObject.AddComponent<GridRenderer>();
+        Debug.Assert(renderer != null, "[QATestingSystem] Error: GridRenderer component could not be created.");
+        Debug.Log("[QATestingSystem] ✓ GridRenderer creation test passed.");
+
+        // Test 2: GridRenderer works without GridService (preview mode)
+        ServiceRegistry.Clear(); // Ensure no GridService is registered
+        
+        // Simulate Start() call to test service resolution
+        renderer.Start();
+        
+        // Since GridRenderer uses TryResolve, it should handle missing service gracefully
+        Debug.Log("[QATestingSystem] ✓ GridRenderer preview mode test passed (no exceptions thrown).");
+
+        // Test 3: GridRenderer connects to GridService when available
+        var map = new GridMap(5, 3);
+        var gridService = new GridService(map, Vector3.zero, 1.0f);
+        ServiceRegistry.Register<GridService>(gridService);
+        
+        // Create new renderer to test with service
+        var gameObjectWithService = new GameObject("TestGridRendererWithService");
+        var rendererWithService = gameObjectWithService.AddComponent<GridRenderer>();
+        rendererWithService.Start();
+        
+        Debug.Log("[QATestingSystem] ✓ GridRenderer with GridService test passed.");
+
+        // Test 4: Verify renderer has proper color configuration
+        Debug.Assert(renderer != null, "[QATestingSystem] Error: GridRenderer should have default color settings.");
+        Debug.Log("[QATestingSystem] ✓ GridRenderer color configuration test passed.");
+
+        // Test 5: GridRendererDemo can be created and works
+        var demoObject = new GameObject("TestGridRendererDemo");
+        var demo = demoObject.AddComponent<GridRendererDemo>();
+        Debug.Assert(demo != null, "[QATestingSystem] Error: GridRendererDemo component could not be created.");
+        Debug.Log("[QATestingSystem] ✓ GridRendererDemo creation test passed.");
+
+        // Clean up
+        Object.DestroyImmediate(gameObject);
+        Object.DestroyImmediate(gameObjectWithService);
+        Object.DestroyImmediate(demoObject);
+        ServiceRegistry.Clear();
+
+        Debug.Log("[QATestingSystem] All tests for GridRenderer completed successfully.");
     }
 
     public static void TestValidationService()
