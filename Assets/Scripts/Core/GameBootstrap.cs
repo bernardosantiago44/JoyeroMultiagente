@@ -15,8 +15,7 @@ public sealed class GameBootstrap : MonoBehaviour
         [Header("Configs (SO)")]
         [SerializeField] private SimulationConfig _simulationConfig;
         [SerializeField] private AgentConfig _agentConfig;
-
-        [Header("Servicios opcionales")]
+        [SerializeField] private SpawnConfig _spawnConfig;
         [SerializeField] private ValidationService _validationService; // puede ser null al inicio
 
         public static GameBootstrap Instance { get; private set; }
@@ -29,6 +28,10 @@ public sealed class GameBootstrap : MonoBehaviour
                 Destroy(gameObject);
                 return;
             }
+            if (_validationService == null)
+            {
+               _validationService = new ValidationService(); 
+            }
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
@@ -37,20 +40,27 @@ public sealed class GameBootstrap : MonoBehaviour
                 Debug.LogError("[GameBootstrap] Falta SimulationConfig asignado en el inspector.");
             if (_agentConfig == null)
                 Debug.LogError("[GameBootstrap] Falta AgentConfig asignado en el inspector.");
+            if (_spawnConfig == null)
+                Debug.LogError("[GameBootstrap] Falta SpawnConfig asignado en el inspector.");
 
             // 2) Registrar configs y servicios mínimos
             ServiceRegistry.Clear(); // Limpiar escena
             if (_simulationConfig != null) ServiceRegistry.Register(_simulationConfig);
             if (_agentConfig != null) ServiceRegistry.Register(_agentConfig);
+            if (_spawnConfig != null) ServiceRegistry.Register(_spawnConfig);
             if (_validationService != null) ServiceRegistry.Register(_validationService);
 
             // 3) Validaciones iniciales (solo configuración, sin grid)
             try
             {
-            if (_validationService != null)
-            {
-                Debug.LogWarning("[GameBootstrap] Validación no implementada aún. Saltando validaciones iniciales.");
-            }
+                if (_validationService != null)
+                {
+                    _validationService.RunAll();
+                }
+                else
+                {
+                    Debug.LogWarning("[GameBootstrap] ValidationService no asignado. Saltando validaciones iniciales.");
+                }
             }
             catch (System.Exception ex)
             {

@@ -918,7 +918,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1262297882}
-  - component: {fileID: 1262297881}
   - component: {fileID: 1262297883}
   m_Layer: 0
   m_Name: QATestingSystem
@@ -927,18 +926,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1262297881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262297880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 709d68e0e320941c3bfa643eb4373118, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1262297882
 Transform:
   m_ObjectHideFlags: 0
@@ -961,9 +948,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1262297880}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7ec000ee6e8a45a7a806f58e13bb093, type: 3}
+  m_Script: {fileID: 11500000, guid: 0d3f0192cdf504ac49226afc37d25e82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1291156924
@@ -1449,6 +1436,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _simulationConfig: {fileID: 11400000, guid: 8edf1492af8134599a51605209c5ff8e, type: 2}
   _agentConfig: {fileID: 11400000, guid: d11b8b877ea6f450a8921a008927f35c, type: 2}
+  _spawnConfig: {fileID: 11400000, guid: 4efca890ff0ce4e4194b48e1153641e0, type: 2}
 --- !u!4 &1967256455
 Transform:
   m_ObjectHideFlags: 0

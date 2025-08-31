@@ -7,6 +7,7 @@ public static class QATestingSystem
         TestGridCell();
         TestGridMap();
         TestGridService();
+        TestValidationService();
     }
 
     public static void TestGridCell()
@@ -269,5 +270,79 @@ public static class QATestingSystem
         Debug.Log("[QATestingSystem] ✓ GridService constructor validation test passed.");
 
         Debug.Log("[QATestingSystem] All tests for GridService completed successfully.");
+    }
+
+    public static void TestValidationService()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for ValidationService.");
+
+        // Create test configurations
+        var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
+        var agentConfig = ScriptableObject.CreateInstance<AgentConfig>();
+        var spawnConfig = ScriptableObject.CreateInstance<SpawnConfig>();
+        var validationService = new ValidationService();
+
+        // Test 1: Validation without configs registered should handle gracefully
+        ServiceRegistry.Clear();
+        try
+        {
+            validationService.RunAll();
+            Debug.Log("[QATestingSystem] ✓ ValidationService handles missing configs gracefully.");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Assert(false, $"[QATestingSystem] Error: ValidationService should handle missing configs gracefully. Exception: {ex.Message}");
+        }
+
+        // Test 2: Register configs and test validation
+        ServiceRegistry.Register(simConfig);
+        ServiceRegistry.Register(agentConfig);
+        ServiceRegistry.Register(spawnConfig);
+
+        try
+        {
+            validationService.RunAll();
+            Debug.Log("[QATestingSystem] ✓ ValidationService runs with valid default configs.");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Assert(false, $"[QATestingSystem] Error: ValidationService should work with valid configs. Exception: {ex.Message}");
+        }
+
+        // Test 3: Test with GridService
+        var map = new GridMap(5, 5);
+        var gridService = new GridService(map, Vector3.zero);
+        ServiceRegistry.Register(gridService);
+
+        try
+        {
+            validationService.RunAll();
+            Debug.Log("[QATestingSystem] ✓ ValidationService runs with GridService available.");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Assert(false, $"[QATestingSystem] Error: ValidationService should work with GridService. Exception: {ex.Message}");
+        }
+
+        // Test 4: Test with fragmented map (create walls to block connectivity)
+        for (int x = 0; x < 5; x++)
+        {
+            map.SetCell(x, 2, new GridCell(CellType.Wall)); // Create horizontal wall
+        }
+        
+        try
+        {
+            validationService.RunAll();
+            Debug.Log("[QATestingSystem] ✓ ValidationService detects map fragmentation.");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Assert(false, $"[QATestingSystem] Error: ValidationService should handle fragmented maps. Exception: {ex.Message}");
+        }
+
+        // Cleanup
+        ServiceRegistry.Clear();
+        
+        Debug.Log("[QATestingSystem] All tests for ValidationService completed successfully.");
     }
 }
