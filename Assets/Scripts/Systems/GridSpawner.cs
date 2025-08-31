@@ -108,6 +108,159 @@ public class GridSpawner : MonoBehaviour
         return new Vector2Int(Mathf.Clamp(x, 0, gridW - 1), Mathf.Clamp(y, 0, gridH - 1));
     }
 
+    /// <summary>
+    /// API pública para que SpawnSystem delegue la colocación de elementos estructurales.
+    /// Marca tipos de celda según la configuración proporcionada.
+    /// </summary>
+    /// <param name="gridService">Servicio de grid donde marcar las celdas</param>
+    /// <param name="spawnConfig">Configuración que define qué estructuras crear</param>
+    public void PopulateStructuralElements(GridService gridService, SpawnConfig spawnConfig)
+    {
+        if (gridService?.Map == null)
+        {
+            Debug.LogError("[GridSpawner] GridService o GridMap es null. No se pueden poblar elementos estructurales.");
+            return;
+        }
+
+        Debug.Log("[GridSpawner] Poblando elementos estructurales...");
+
+        // 1. Crear perímetro de paredes si está habilitado
+        if (spawnConfig.EnableWallPerimeter)
+        {
+            CreateWallPerimeter(gridService);
+        }
+
+        // 2. Crear estantes si están habilitados
+        if (spawnConfig.EnableShelves)
+        {
+            CreateShelves(gridService, spawnConfig.ShelfRows, spawnConfig.ShelfColumns);
+        }
+
+        // 3. Crear zonas si están habilitadas
+        if (spawnConfig.EnableZones)
+        {
+            CreateZones(gridService, spawnConfig.NumZones);
+        }
+
+        Debug.Log("[GridSpawner] Elementos estructurales poblados exitosamente.");
+    }
+
+    /// <summary>
+    /// Crea un perímetro de paredes alrededor del borde del mapa.
+    /// </summary>
+    private void CreateWallPerimeter(GridService gridService)
+    {
+        var map = gridService.Map;
+        int width = map.Width;
+        int height = map.Height;
+
+        // Paredes superior e inferior
+        for (int x = 0; x < width; x++)
+        {
+            SetCellType(map, x, 0, CellType.Wall);           // Borde inferior
+            SetCellType(map, x, height - 1, CellType.Wall);  // Borde superior
+        }
+
+        // Paredes izquierda y derecha
+        for (int y = 0; y < height; y++)
+        {
+            SetCellType(map, 0, y, CellType.Wall);           // Borde izquierdo
+            SetCellType(map, width - 1, y, CellType.Wall);   // Borde derecho
+        }
+
+        Debug.Log($"[GridSpawner] Created wall perimeter around {width}x{height} map");
+    }
+
+    /// <summary>
+    /// Crea estantes en patrones de filas y columnas.
+    /// </summary>
+    private void CreateShelves(GridService gridService, int shelfRows, int shelfColumns)
+    {
+        var map = gridService.Map;
+        int width = map.Width;
+        int height = map.Height;
+
+        // Crear filas de estantes (horizontales)
+        if (shelfRows > 0)
+        {
+            int rowSpacing = height / (shelfRows + 1);
+            for (int row = 1; row <= shelfRows; row++)
+            {
+                int y = row * rowSpacing;
+                if (y >= height - 1) break; // Evitar borde superior
+
+                for (int x = 1; x < width - 1; x++) // Evitar bordes laterales
+                {
+                    SetCellType(map, x, y, CellType.Shelf);
+                }
+            }
+        }
+
+        // Crear columnas de estantes (verticales)
+        if (shelfColumns > 0)
+        {
+            int colSpacing = width / (shelfColumns + 1);
+            for (int col = 1; col <= shelfColumns; col++)
+            {
+                int x = col * colSpacing;
+                if (x >= width - 1) break; // Evitar borde derecho
+
+                for (int y = 1; y < height - 1; y++) // Evitar bordes superior e inferior
+                {
+                    SetCellType(map, x, y, CellType.Shelf);
+                }
+            }
+        }
+
+        Debug.Log($"[GridSpawner] Created {shelfRows} shelf rows and {shelfColumns} shelf columns");
+    }
+
+    /// <summary>
+    /// Crea zonas distribuidas en el mapa.
+    /// </summary>
+    private void CreateZones(GridService gridService, int numZones)
+    {
+        var map = gridService.Map;
+        int width = map.Width;
+        int height = map.Height;
+
+        // Crear zonas en las esquinas disponibles
+        var zonePositions = new List<Vector2Int>();
+
+        // Esquinas del mapa (evitando paredes si existen)
+        var corners = new Vector2Int[]
+        {
+            new Vector2Int(1, 1),                    // Esquina inferior-izquierda
+            new Vector2Int(width - 2, 1),            // Esquina inferior-derecha
+            new Vector2Int(1, height - 2),           // Esquina superior-izquierda
+            new Vector2Int(width - 2, height - 2)    // Esquina superior-derecha
+        };
+
+        for (int i = 0; i < numZones && i < corners.Length; i++)
+        {
+            var pos = corners[i];
+            if (pos.x >= 0 && pos.x < width && pos.y >= 0 && pos.y < height)
+            {
+                SetCellType(map, pos.x, pos.y, CellType.Zone);
+                zonePositions.Add(pos);
+            }
+        }
+
+        Debug.Log($"[GridSpawner] Created {zonePositions.Count} zones at positions: {string.Join(", ", zonePositions)}");
+    }
+
+    /// <summary>
+    /// Establece el tipo de una celda si está dentro de los límites del mapa.
+    /// </summary>
+    private void SetCellType(GridMap map, int x, int y, CellType cellType)
+    {
+        if (map.InBounds(x, y))
+        {
+            var cell = map.GetCell(x, y);
+            cell.SetType(cellType);
+        }
+    }
+
 #if UNITY_EDITOR
     [ContextMenu("Respawn (Editor)")]
     private void Respawn()
