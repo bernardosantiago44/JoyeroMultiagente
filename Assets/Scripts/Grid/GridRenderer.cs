@@ -45,7 +45,7 @@ public sealed class GridRenderer : MonoBehaviour
     /// Intenta obtener el GridService del ServiceRegistry al inicializar.
     /// Si no está disponible, usa el modo preview.
     /// </summary>
-    private void Start()
+    public void Start()
     {
         _hasGridService = ServiceRegistry.TryResolve<GridService>(out _gridService);
         
