@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e251fd2dac64e9288e0d87b60a0343, type: 3}
+  m_Name: SpawnConfig
+  m_EditorClassIdentifier: 
+  _numRobots: 3
+  _numJewels: 10
+  _jewelColors:
+  - Red
+  - Blue
+  - Green
+  - Yellow
+  _obstacleDensity: 0.2

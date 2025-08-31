@@ -16,8 +16,6 @@ public sealed class GameBootstrap : MonoBehaviour
         [SerializeField] private SimulationConfig _simulationConfig;
         [SerializeField] private AgentConfig _agentConfig;
         [SerializeField] private SpawnConfig _spawnConfig;
-
-        [Header("Servicios opcionales")]
         [SerializeField] private ValidationService _validationService; // puede ser null al inicio
 
         public static GameBootstrap Instance { get; private set; }
@@ -29,6 +27,10 @@ public sealed class GameBootstrap : MonoBehaviour
                 Debug.LogWarning("[GameBootstrap] Duplicado detectado. Destruyendo este objeto.");
                 Destroy(gameObject);
                 return;
+            }
+            if (_validationService == null)
+            {
+               _validationService = new ValidationService(); 
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
