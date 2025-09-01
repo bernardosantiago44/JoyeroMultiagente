@@ -37,7 +37,7 @@ public sealed class GridCell
     /// Resultado práctico: ¿se puede entrar a esta celda en este momento?
     /// Considera tipo + ocupación/reserva.
     /// </summary>
-    public bool IsWalkableNow => IsWalkableByType && !IsBlockedByOccupant;
+    public bool IsWalkableNow => IsWalkableByType; //&& !IsBlockedByOccupant;
 
     /// <summary>Crea una celda con tipo dado y ocupación opcional.</summary>
     public GridCell(CellType type = CellType.Empty, CellOccupant occupants = CellOccupant.None)

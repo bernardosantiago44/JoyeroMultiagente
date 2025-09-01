@@ -22,54 +22,66 @@ public sealed class GameBootstrap : MonoBehaviour
         [SerializeField] private GridSpawner _gridSpawner; // Opcional para elementos estructurales
         [SerializeField] private Vector3 _worldOrigin = Vector3.zero; // Origen del mundo para el grid
 
-        public static GameBootstrap Instance { get; private set; }
+        private GridService _gridService;
+        private PathfindingService _pathfindingService;
 
-        private void Awake()
+    public static GameBootstrap Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
         {
-            if (Instance != null && Instance != this)
-            {
-                Debug.LogWarning("[GameBootstrap] Duplicado detectado. Destruyendo este objeto.");
-                Destroy(gameObject);
-                return;
-            }
-            if (_validationService == null)
-            {
-               _validationService = new ValidationService(); 
-            }
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Debug.LogWarning("[GameBootstrap] Duplicado detectado. Destruyendo este objeto.");
+            Destroy(gameObject);
+            return;
+        }
+        if (_validationService == null)
+        {
+            _validationService = new ValidationService();
+        }
 
-            // 1) Validar referencias mínimas
-            if (_simulationConfig == null)
-                Debug.LogError("[GameBootstrap] Falta SimulationConfig asignado en el inspector.");
-            if (_agentConfig == null)
-                Debug.LogError("[GameBootstrap] Falta AgentConfig asignado en el inspector.");
-            if (_spawnConfig == null)
-                Debug.LogError("[GameBootstrap] Falta SpawnConfig asignado en el inspector.");
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
 
-            // 2) Registrar configs y servicios mínimos
-            ServiceRegistry.Clear(); // Limpiar escena
-            if (_simulationConfig != null) ServiceRegistry.Register(_simulationConfig);
+        // 1) Validar referencias mínimas
+        if (_simulationConfig == null)
+            Debug.LogError("[GameBootstrap] Falta SimulationConfig asignado en el inspector.");
+        if (_agentConfig == null)
+            Debug.LogError("[GameBootstrap] Falta AgentConfig asignado en el inspector.");
+        if (_spawnConfig == null)
+            Debug.LogError("[GameBootstrap] Falta SpawnConfig asignado en el inspector.");
+
+        // 2) Registrar configs y servicios mínimos
+        ServiceRegistry.Clear(); // Limpiar escena
+        if (_simulationConfig != null)
+        {
+            ServiceRegistry.Register(_simulationConfig);
+            _gridService = new GridService(_simulationConfig.GridMap, _worldOrigin, _simulationConfig.CellSize);
+            _pathfindingService = new PathfindingService(_gridService);
+        }
             if (_agentConfig != null) ServiceRegistry.Register(_agentConfig);
             if (_spawnConfig != null) ServiceRegistry.Register(_spawnConfig);
             if (_validationService != null) ServiceRegistry.Register(_validationService);
+            if (_gridService != null) ServiceRegistry.Register(_gridService);
+            if (_pathfindingService != null) ServiceRegistry.Register(_pathfindingService);
+            if (_gridSpawner != null) ServiceRegistry.Register(_gridSpawner);
 
             // 3) Validaciones iniciales (solo configuración, sin grid)
-            try
+        try
+        {
+            if (_validationService != null)
             {
-                if (_validationService != null)
-                {
-                    _validationService.RunAll();
-                }
-                else
-                {
-                    Debug.LogWarning("[GameBootstrap] ValidationService no asignado. Saltando validaciones iniciales.");
-                }
+                _validationService.RunAll();
             }
-            catch (System.Exception ex)
+            else
             {
-                Debug.LogError($"[GameBootstrap] Validaciones fallaron: {ex.Message}");
+                Debug.LogWarning("[GameBootstrap] ValidationService no asignado. Saltando validaciones iniciales.");
             }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[GameBootstrap] Validaciones fallaron: {ex.Message}");
+        }
 
             Debug.Log("[GameBootstrap] Inicializado. Configs y servicios registrados.");
         }

@@ -20,8 +20,8 @@ MonoBehaviour:
   - Green
   - Yellow
   _obstacleDensity: 0.2
-  _enableWallPerimeter: 1
-  _enableShelves: 1
+  _enableWallPerimeter: 0
+  _enableShelves: 0
   _shelfRows: 2
   _shelfColumns: 2
   _enableZones: 1

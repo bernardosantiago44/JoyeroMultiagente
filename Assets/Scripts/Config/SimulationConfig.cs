@@ -45,4 +45,6 @@ public sealed class SimulationConfig : ScriptableObject
 
     /// <summary>Alto mínimo permitido del mapa</summary>
     public int MinHeight => _minHeight;
+
+    public GridMap GridMap => new GridMap(_width, _height);
 }
