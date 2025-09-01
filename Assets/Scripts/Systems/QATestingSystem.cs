@@ -1005,7 +1005,3 @@ public static class QATestingSystem
         Debug.Log("[QATestingSystem] All tests for RuleSystem completed.");
     }
 }
-        
-        Debug.Log("[QATestingSystem] All tests for RobotController completed successfully.");
-    }
-}
