@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -16,6 +17,12 @@ public class GridSpawner : MonoBehaviour
     [SerializeField] private Renderer boardRenderer;   // Renderer del plano/tablero
     [SerializeField] private GameObject rupeePrefab;   // Tu Rupee con la luz como hijo
     [SerializeField] private Transform parent;         // Contenedor opcional para los instanciados
+
+    [Header("Jewel Prefabs")]
+    [SerializeField] private GameObject redJewelPrefab;    // Prefab para joyas rojas
+    [SerializeField] private GameObject blueJewelPrefab;   // Prefab para joyas azules
+    [SerializeField] private GameObject greenJewelPrefab;  // Prefab para joyas verdes
+    [SerializeField] private GameObject yellowJewelPrefab; // Prefab para joyas amarillas
 
     [Header("Configuración de grid")]
     [SerializeField] private float cellSize = 1f;      // 1 => coordenadas enteras
@@ -142,7 +149,137 @@ public class GridSpawner : MonoBehaviour
             CreateZones(gridService, spawnConfig.NumZones);
         }
 
+        // 4. Crear joyas con distribución por colores
+        SpawnJewelsByColor(gridService, spawnConfig);
+
         Debug.Log("[GridSpawner] Elementos estructurales poblados exitosamente.");
+    }
+
+    /// <summary>
+    /// Spawna joyas según la distribución por colores especificada en la configuración.
+    /// </summary>
+    private void SpawnJewelsByColor(GridService gridService, SpawnConfig spawnConfig)
+    {
+        var availableCells = GetAvailableWalkableCells(gridService);
+        var rng = new System.Random(seed);
+
+        int totalJewelsToSpawn = spawnConfig.TotalJewelsFromDistribution;
+        if (availableCells.Count < totalJewelsToSpawn)
+        {
+            Debug.LogWarning($"[GridSpawner] Not enough available cells ({availableCells.Count}) for all jewels ({totalJewelsToSpawn})");
+            totalJewelsToSpawn = availableCells.Count;
+        }
+
+        // Crear lista de joyas a spawner
+        var jewelQueue = new List<(JewelColor color, GameObject prefab)>();
+        
+        // Agregar joyas rojas
+        for (int i = 0; i < spawnConfig.NumRedJewels; i++)
+            jewelQueue.Add((JewelColor.Red, redJewelPrefab));
+        
+        // Agregar joyas azules
+        for (int i = 0; i < spawnConfig.NumBlueJewels; i++)
+            jewelQueue.Add((JewelColor.Blue, blueJewelPrefab));
+        
+        // Agregar joyas verdes
+        for (int i = 0; i < spawnConfig.NumGreenJewels; i++)
+            jewelQueue.Add((JewelColor.Green, greenJewelPrefab));
+        
+        // Agregar joyas amarillas
+        for (int i = 0; i < spawnConfig.NumYellowJewels; i++)
+            jewelQueue.Add((JewelColor.Yellow, yellowJewelPrefab));
+
+        // Barajar la lista para distribución aleatoria
+        for (int i = jewelQueue.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (jewelQueue[i], jewelQueue[j]) = (jewelQueue[j], jewelQueue[i]);
+        }
+
+        // Spawner las joyas
+        for (int i = 0; i < Math.Min(jewelQueue.Count, totalJewelsToSpawn); i++)
+        {
+            var (color, prefab) = jewelQueue[i];
+            var cell = availableCells[i];
+            
+            if (prefab != null)
+            {
+                SpawnJewelAtCell(gridService, cell, color, prefab);
+            }
+            else
+            {
+                Debug.LogWarning($"[GridSpawner] No prefab assigned for {color} jewel. Skipping spawn.");
+            }
+        }
+
+        Debug.Log($"[GridSpawner] Spawned {Math.Min(jewelQueue.Count, totalJewelsToSpawn)} jewels with color distribution");
+    }
+
+    /// <summary>
+    /// Obtiene todas las celdas disponibles y transitables para spawner joyas.
+    /// </summary>
+    private List<Vector2Int> GetAvailableWalkableCells(GridService gridService)
+    {
+        var availableCells = new List<Vector2Int>();
+        
+        for (int x = 0; x < gridService.Width; x++)
+        {
+            for (int y = 0; y < gridService.Height; y++)
+            {
+                var cell = new Vector2Int(x, y);
+                var gridCell = gridService.GetCell(cell);
+                
+                // Solo usar celdas empty que sean walkable y no tengan ocupantes
+                if (gridCell != null && 
+                    gridCell.Type == CellType.Empty && 
+                    gridCell.IsWalkableNow && 
+                    gridCell.Occupants == CellOccupant.None)
+                {
+                    availableCells.Add(cell);
+                }
+            }
+        }
+        
+        // Barajar las celdas disponibles
+        var rng = new System.Random(seed);
+        for (int i = availableCells.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (availableCells[i], availableCells[j]) = (availableCells[j], availableCells[i]);
+        }
+        
+        return availableCells;
+    }
+
+    /// <summary>
+    /// Spawna una joya específica en una celda determinada.
+    /// </summary>
+    private void SpawnJewelAtCell(GridService gridService, Vector2Int cell, JewelColor color, GameObject prefab)
+    {
+        Vector3 worldPos = gridService.CellToWorld(cell);
+        worldPos.y = BoardBounds.max.y + spawnYOffset;
+
+        Quaternion rot = randomYRotation
+            ? Quaternion.Euler(90f, UnityEngine.Random.Range(0, 360), 0f)
+            : Quaternion.Euler(90f, 0f, 0f);
+
+        var jewelGO = Instantiate(prefab, worldPos, rot, parent);
+        jewelGO.name = $"{color}Jewel_({cell.x},{cell.y})";
+
+        // Configurar el componente Jewel si existe
+        var jewelComponent = jewelGO.GetComponent<Jewel>();
+        if (jewelComponent != null)
+        {
+            // El componente Jewel se configurará automáticamente en Start()
+            Debug.Log($"[GridSpawner] Spawned {color} jewel at cell {cell}");
+        }
+        else
+        {
+            Debug.LogWarning($"[GridSpawner] Prefab for {color} jewel doesn't have Jewel component");
+        }
+
+        // Marcar la celda como ocupada
+        gridService.AddOccupant(cell, CellOccupant.Jewel);
     }
 
     /// <summary>

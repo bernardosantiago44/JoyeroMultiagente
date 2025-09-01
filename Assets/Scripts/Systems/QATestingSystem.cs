@@ -17,6 +17,7 @@ public static class QATestingSystem
         TestZoneController();
         TestMetricsLogger();
         TestRuleSystem();
+
     }
 
     public static void TestGridCell()
@@ -218,7 +219,7 @@ public static class QATestingSystem
                 var originalCell = new Vector2Int(x, y);
                 var worldPosition = service.CellToWorld(originalCell);
                 var convertedCell = service.WorldToCell(worldPosition);
-                Debug.Assert(convertedCell == originalCell, 
+                Debug.Assert(convertedCell == originalCell,
                     $"[QATestingSystem] Error: Round-trip conversion failed for cell ({x},{y}). Got {convertedCell}.");
             }
         }
@@ -260,7 +261,7 @@ public static class QATestingSystem
         // Test 11: Default cell size constructor
         var serviceDefault = new GridService(map, Vector3.zero);
         Debug.Assert(serviceDefault.CellSize == 1.0f, "[QATestingSystem] Error: Default cell size should be 1.0f.");
-        
+
         var worldPosDefault = serviceDefault.CellToWorld(new Vector2Int(1, 1));
         var expectedPosDefault = new Vector3(1.5f, 0f, 1.5f);
         Debug.Assert(Vector3.Distance(worldPosDefault, expectedPosDefault) < 0.001f, "[QATestingSystem] Error: Default cell size conversion incorrect.");
@@ -391,11 +392,11 @@ public static class QATestingSystem
         {
             map.SetCell(2, y, new GridCell(CellType.Empty));
         }
-        
+
         // Test with and without extra cost - should find same path but different cost
         result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 0), out var pathNormalCost);
         var resultExtraCost = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 0), out var pathExtraCost, extraCost: 5);
-        
+
         Debug.Assert(result && resultExtraCost, "[QATestingSystem] Error: Both normal and extra cost paths should be found.");
         Debug.Assert(pathNormalCost.Count == pathExtraCost.Count, "[QATestingSystem] Error: Path length should be same regardless of extra cost.");
         // Verify paths are identical
@@ -415,7 +416,7 @@ public static class QATestingSystem
         // Test 13: Deterministic behavior - same input should produce same output
         result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 2), out var path1);
         var result2 = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 2), out var path2);
-        
+
         Debug.Assert(result == result2, "[QATestingSystem] Error: Pathfinding should be deterministic in result.");
         if (result && result2)
         {
@@ -454,10 +455,10 @@ public static class QATestingSystem
 
         // Test 2: GridRenderer works without GridService (preview mode)
         ServiceRegistry.Clear(); // Ensure no GridService is registered
-        
+
         // Simulate Start() call to test service resolution
         renderer.Start();
-        
+
         // Since GridRenderer uses TryResolve, it should handle missing service gracefully
         Debug.Log("[QATestingSystem] ✓ GridRenderer preview mode test passed (no exceptions thrown).");
 
@@ -465,12 +466,12 @@ public static class QATestingSystem
         var map = new GridMap(5, 3);
         var gridService = new GridService(map, Vector3.zero, 1.0f);
         ServiceRegistry.Register<GridService>(gridService);
-        
+
         // Create new renderer to test with service
         var gameObjectWithService = new GameObject("TestGridRendererWithService");
         var rendererWithService = gameObjectWithService.AddComponent<GridRenderer>();
         rendererWithService.Start();
-        
+
         Debug.Log("[QATestingSystem] ✓ GridRenderer with GridService test passed.");
 
         // Test 4: Verify renderer has proper color configuration
@@ -549,7 +550,7 @@ public static class QATestingSystem
         {
             map.SetCell(x, 2, new GridCell(CellType.Wall)); // Create horizontal wall
         }
-        
+
         try
         {
             validationService.RunAll();
@@ -562,7 +563,7 @@ public static class QATestingSystem
 
         // Cleanup
         ServiceRegistry.Clear();
-        
+
         Debug.Log("[QATestingSystem] All tests for ValidationService completed successfully.");
     }
 
@@ -579,7 +580,7 @@ public static class QATestingSystem
         var widthField = typeof(SimulationConfig).GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
         var heightField = typeof(SimulationConfig).GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
         var cellSizeField = typeof(SimulationConfig).GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
-        
+
         widthField?.SetValue(simConfig, 10);
         heightField?.SetValue(simConfig, 8);
         cellSizeField?.SetValue(simConfig, 1.0f);
@@ -596,7 +597,7 @@ public static class QATestingSystem
 
         // Test 1: Basic empty world creation
         Debug.Log("[QATestingSystem] Test 1: Basic empty world creation");
-        
+
         Vector3 testOrigin = new Vector3(0, 0, 0);
         SpawnSystem.SpawnEmptyWorld(testOrigin, null);
 
@@ -611,7 +612,7 @@ public static class QATestingSystem
 
         // Test 2: Verify all cells are empty by default
         Debug.Log("[QATestingSystem] Test 2: Verify empty cells");
-        
+
         bool allCellsEmpty = true;
         for (int x = 0; x < gridService.Width; x++)
         {
@@ -626,14 +627,14 @@ public static class QATestingSystem
             }
             if (!allCellsEmpty) break;
         }
-        
+
         Debug.Assert(allCellsEmpty, "[QATestingSystem] Error: Not all cells are empty by default.");
         Debug.Log("[QATestingSystem] ✓ Empty cells verification test passed.");
 
         // Test 2.5: Verify PathfindingService was registered
         Debug.Assert(ServiceRegistry.TryResolve<PathfindingService>(out var pathfindingService), "[QATestingSystem] Error: PathfindingService not registered after SpawnEmptyWorld.");
         Debug.Assert(pathfindingService != null, "[QATestingSystem] Error: PathfindingService is null.");
-        
+
         // Quick pathfinding test
         bool pathResult = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(1, 1), out var path);
         Debug.Assert(pathResult, "[QATestingSystem] Error: PathfindingService should find simple path.");
@@ -642,7 +643,7 @@ public static class QATestingSystem
 
         // Test 3: Test without GridSpawner (should work fine)
         Debug.Log("[QATestingSystem] Test 3: Test without GridSpawner");
-        
+
         // Clear and setup again 
         ServiceRegistry.Clear();
         ServiceRegistry.Register(simConfig);
@@ -658,7 +659,7 @@ public static class QATestingSystem
 
         // Cleanup
         ServiceRegistry.Clear();
-        
+
         Debug.Log("[QATestingSystem] All tests for SpawnSystem completed successfully.");
     }
 
@@ -668,12 +669,12 @@ public static class QATestingSystem
 
         // Setup: Create services needed for RobotController
         var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
-        
+
         // Use reflection to set private fields in SimulationConfig
         var widthField = simConfig.GetType().GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
         var heightField = simConfig.GetType().GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
         var cellSizeField = simConfig.GetType().GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
-        
+
         widthField?.SetValue(simConfig, 5);
         heightField?.SetValue(simConfig, 5);
         cellSizeField?.SetValue(simConfig, 1.0f);
@@ -691,116 +692,116 @@ public static class QATestingSystem
 
         // Test 1: Create RobotController
         Debug.Log("[QATestingSystem] Test 1: RobotController creation");
-        
+
         var robotGameObject = new GameObject("TestRobot");
         robotGameObject.transform.position = gridService.CellToWorld(new Vector2Int(0, 0));
-        
+
         // Add PathfindingComponent first (required dependency)
         var pathfindingComponent = robotGameObject.AddComponent<PathfindingComponent>();
         Debug.Assert(pathfindingComponent != null, "[QATestingSystem] Error: PathfindingComponent could not be created.");
-        
+
         // Add RobotController
         var robotController = robotGameObject.AddComponent<RobotController>();
         Debug.Assert(robotController != null, "[QATestingSystem] Error: RobotController could not be created.");
-        
+
         Debug.Log("[QATestingSystem] ✓ RobotController creation test passed.");
 
         // Test 2: IAgent interface implementation
         Debug.Log("[QATestingSystem] Test 2: IAgent interface");
-        
+
         IAgent agent = robotController;
         Debug.Assert(agent != null, "[QATestingSystem] Error: RobotController should implement IAgent interface.");
-        
+
         // ID should be readable (default is 0)
         int agentId = agent.Id;
         Debug.Assert(agentId >= 0, "[QATestingSystem] Error: Agent ID should be non-negative.");
-        
+
         // Cell should be readable
         Vector2Int agentCell = agent.Cell;
         Debug.Assert(gridService.IsInside(agentCell), "[QATestingSystem] Error: Agent cell should be within grid bounds.");
-        
+
         // Tick and PlanNextAction should not throw
         agent.Tick();
         agent.PlanNextAction();
-        
+
         Debug.Log("[QATestingSystem] ✓ IAgent interface test passed.");
 
         // Test 3: Basic movement command
         Debug.Log("[QATestingSystem] Test 3: Basic movement command");
-        
+
         // Simulate Start() call to initialize the robot
         pathfindingComponent.SendMessage("Start");
         robotController.SendMessage("Start");
-        
+
         // Get initial position
         Vector2Int startCell = agent.Cell;
         Vector2Int targetCell = new Vector2Int(startCell.x + 2, startCell.y + 1);
-        
+
         // Ensure target is within bounds and walkable
         Debug.Assert(gridService.IsInside(targetCell), "[QATestingSystem] Error: Target cell should be within grid bounds.");
         Debug.Assert(gridService.IsWalkable(targetCell), "[QATestingSystem] Error: Target cell should be walkable.");
-        
+
         // Test movement command
         bool moveResult = robotController.MoveToCell(targetCell);
         Debug.Assert(moveResult, "[QATestingSystem] Error: MoveToCell should return true for valid target.");
-        
+
         Debug.Log("[QATestingSystem] ✓ Basic movement command test passed.");
 
         // Test 4: Pathfinding integration
         Debug.Log("[QATestingSystem] Test 4: Pathfinding integration");
-        
+
         // Check that pathfinding component has a path
         Debug.Assert(pathfindingComponent.HasPath, "[QATestingSystem] Error: PathfindingComponent should have a path after MoveToCell.");
         Debug.Assert(pathfindingComponent.NextWaypoint.HasValue, "[QATestingSystem] Error: PathfindingComponent should have next waypoint.");
-        
+
         Debug.Log("[QATestingSystem] ✓ Pathfinding integration test passed.");
 
         // Test 5: Multiple tick simulation (simulate movement)
         Debug.Log("[QATestingSystem] Test 5: Movement simulation");
-        
+
         int maxTicks = 50; // Prevent infinite loop
         int tickCount = 0;
         Vector2Int initialCell = agent.Cell;
-        
+
         // Simulate multiple ticks until robot reaches destination or timeout
         while (tickCount < maxTicks && (agent.Cell != targetCell))
         {
             agent.Tick();
             tickCount++;
         }
-        
+
         Debug.Assert(tickCount < maxTicks, "[QATestingSystem] Error: Robot should reach destination within reasonable time.");
         Debug.Log($"[QATestingSystem] Robot moved from {initialCell} to {agent.Cell} in {tickCount} ticks.");
-        
+
         Debug.Log("[QATestingSystem] ✓ Movement simulation test passed.");
 
         // Test 6: Grid occupancy management
         Debug.Log("[QATestingSystem] Test 6: Grid occupancy");
-        
+
         Vector2Int finalCell = agent.Cell;
-        
+
         // Final cell should have robot occupant
         Debug.Assert(gridService.HasOccupant(finalCell, CellOccupant.Robot), "[QATestingSystem] Error: Final cell should have Robot occupant.");
-        
+
         // Initial cell should not have robot occupant (if different from final)
         if (initialCell != finalCell)
         {
             Debug.Assert(!gridService.HasOccupant(initialCell, CellOccupant.Robot), "[QATestingSystem] Error: Initial cell should not have Robot occupant after movement.");
         }
-        
+
         Debug.Log("[QATestingSystem] ✓ Grid occupancy test passed.");
 
         // Test 7: Basic replan functionality (optional feature)
         Debug.Log("[QATestingSystem] Test 7: Basic replan functionality");
-        
+
         // Create a new path first
         robotController.MoveToCell(new Vector2Int(1, 1));
         Debug.Assert(pathfindingComponent.HasPath, "[QATestingSystem] Error: Should have path for replan test.");
-        
+
         // Test the ValidateAndReplanIfNeeded method
         bool validationResult = pathfindingComponent.ValidateAndReplanIfNeeded(robotGameObject.transform.position, new Vector2Int(1, 1));
         Debug.Assert(validationResult, "[QATestingSystem] Error: Path validation should succeed in empty grid.");
-        
+
         Debug.Log("[QATestingSystem] ✓ Basic replan functionality test passed.");
 
         // Cleanup
@@ -816,11 +817,11 @@ public static class QATestingSystem
 
         // Setup: Create basic grid service
         var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
-        
+
         var widthField = simConfig.GetType().GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
         var heightField = simConfig.GetType().GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
         var cellSizeField = simConfig.GetType().GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
-        
+
         widthField?.SetValue(simConfig, 5);
         heightField?.SetValue(simConfig, 5);
         cellSizeField?.SetValue(simConfig, 1.0f);
@@ -873,11 +874,11 @@ public static class QATestingSystem
 
         // Setup: Create basic grid service
         var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
-        
+
         var widthField = simConfig.GetType().GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
         var heightField = simConfig.GetType().GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
         var cellSizeField = simConfig.GetType().GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
-        
+
         widthField?.SetValue(simConfig, 5);
         heightField?.SetValue(simConfig, 5);
         cellSizeField?.SetValue(simConfig, 1.0f);

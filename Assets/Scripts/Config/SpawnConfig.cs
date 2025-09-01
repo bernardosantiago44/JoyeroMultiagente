@@ -18,6 +18,12 @@ public sealed class SpawnConfig : ScriptableObject
     [Header("Jewel Spawn Settings")]
     [SerializeField] private int _numJewels = 10;
     [SerializeField] private string[] _jewelColors = { "Red", "Blue", "Green", "Yellow" };
+    
+    [Header("Jewel Color Distribution")]
+    [SerializeField] private int _numRedJewels = 5;
+    [SerializeField] private int _numBlueJewels = 2;
+    [SerializeField] private int _numGreenJewels = 2;
+    [SerializeField] private int _numYellowJewels = 1;
 
     [Header("Environment Settings")]
     [SerializeField] private float _obstacleDensity = 0.2f;
@@ -39,6 +45,21 @@ public sealed class SpawnConfig : ScriptableObject
     /// <summary>Colores disponibles para las joyas</summary>
     public string[] JewelColors => _jewelColors;
 
+    /// <summary>Número específico de joyas rojas a generar</summary>
+    public int NumRedJewels => _numRedJewels;
+
+    /// <summary>Número específico de joyas azules a generar</summary>
+    public int NumBlueJewels => _numBlueJewels;
+
+    /// <summary>Número específico de joyas verdes a generar</summary>
+    public int NumGreenJewels => _numGreenJewels;
+
+    /// <summary>Número específico de joyas amarillas a generar</summary>
+    public int NumYellowJewels => _numYellowJewels;
+
+    /// <summary>Número total de joyas calculado desde la distribución por colores</summary>
+    public int TotalJewelsFromDistribution => _numRedJewels + _numBlueJewels + _numGreenJewels + _numYellowJewels;
+
     /// <summary>Densidad de obstáculos (0.0-1.0)</summary>
     public float ObstacleDensity => _obstacleDensity;
 
@@ -59,4 +80,23 @@ public sealed class SpawnConfig : ScriptableObject
 
     /// <summary>Número de zonas a crear</summary>
     public int NumZones => _numZones;
+
+    /// <summary>
+    /// Valida la configuración de joyas y ajusta el total si es necesario.
+    /// </summary>
+    private void OnValidate()
+    {
+        // Asegurar que los valores sean no negativos
+        _numRedJewels = Mathf.Max(0, _numRedJewels);
+        _numBlueJewels = Mathf.Max(0, _numBlueJewels);
+        _numGreenJewels = Mathf.Max(0, _numGreenJewels);
+        _numYellowJewels = Mathf.Max(0, _numYellowJewels);
+
+        // Sincronizar el total con la distribución por colores
+        int calculatedTotal = _numRedJewels + _numBlueJewels + _numGreenJewels + _numYellowJewels;
+        if (_numJewels != calculatedTotal)
+        {
+            _numJewels = calculatedTotal;
+        }
+    }
 }
