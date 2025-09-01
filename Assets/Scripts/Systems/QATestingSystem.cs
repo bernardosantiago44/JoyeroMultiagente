@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Reflection;
 
 public static class QATestingSystem
 {
@@ -9,6 +10,7 @@ public static class QATestingSystem
         TestGridService();
         TestGridRenderer();
         TestValidationService();
+        TestSpawnSystem();
     }
 
     public static void TestGridCell()
@@ -395,5 +397,91 @@ public static class QATestingSystem
         ServiceRegistry.Clear();
         
         Debug.Log("[QATestingSystem] All tests for ValidationService completed successfully.");
+    }
+
+    public static void TestSpawnSystem()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for SpawnSystem.");
+
+        // Setup: Clear registry and create test configs
+        ServiceRegistry.Clear();
+
+        // Create test SimulationConfig
+        var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
+        // Set private fields via reflection for testing
+        var widthField = typeof(SimulationConfig).GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
+        var heightField = typeof(SimulationConfig).GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
+        var cellSizeField = typeof(SimulationConfig).GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        widthField?.SetValue(simConfig, 10);
+        heightField?.SetValue(simConfig, 8);
+        cellSizeField?.SetValue(simConfig, 1.0f);
+
+        ServiceRegistry.Register(simConfig);
+
+        // Create test SpawnConfig
+        var spawnConfig = ScriptableObject.CreateInstance<SpawnConfig>();
+        ServiceRegistry.Register(spawnConfig);
+
+        // Create test ValidationService
+        var validationService = new ValidationService();
+        ServiceRegistry.Register(validationService);
+
+        // Test 1: Basic empty world creation
+        Debug.Log("[QATestingSystem] Test 1: Basic empty world creation");
+        
+        Vector3 testOrigin = new Vector3(0, 0, 0);
+        SpawnSystem.SpawnEmptyWorld(testOrigin, null);
+
+        // Verify GridService was created and registered
+        Debug.Assert(ServiceRegistry.TryResolve<GridService>(out var gridService), "[QATestingSystem] Error: GridService not registered after SpawnEmptyWorld.");
+        Debug.Assert(gridService.Width == 10, $"[QATestingSystem] Error: GridService width should be 10, but was {gridService.Width}.");
+        Debug.Assert(gridService.Height == 8, $"[QATestingSystem] Error: GridService height should be 8, but was {gridService.Height}.");
+        Debug.Assert(gridService.CellSize == 1.0f, $"[QATestingSystem] Error: GridService cellSize should be 1.0, but was {gridService.CellSize}.");
+        Debug.Assert(gridService.OriginWorld == testOrigin, $"[QATestingSystem] Error: GridService origin should be {testOrigin}, but was {gridService.OriginWorld}.");
+
+        Debug.Log("[QATestingSystem] ✓ Basic empty world creation test passed.");
+
+        // Test 2: Verify all cells are empty by default
+        Debug.Log("[QATestingSystem] Test 2: Verify empty cells");
+        
+        bool allCellsEmpty = true;
+        for (int x = 0; x < gridService.Width; x++)
+        {
+            for (int y = 0; y < gridService.Height; y++)
+            {
+                var cell = gridService.Map.GetCell(x, y);
+                if (cell.Type != CellType.Empty)
+                {
+                    allCellsEmpty = false;
+                    break;
+                }
+            }
+            if (!allCellsEmpty) break;
+        }
+        
+        Debug.Assert(allCellsEmpty, "[QATestingSystem] Error: Not all cells are empty by default.");
+        Debug.Log("[QATestingSystem] ✓ Empty cells verification test passed.");
+
+        // Test 3: Test without GridSpawner (should work fine)
+        Debug.Log("[QATestingSystem] Test 3: Test without GridSpawner");
+        
+        // Clear and setup again 
+        ServiceRegistry.Clear();
+        ServiceRegistry.Register(simConfig);
+        ServiceRegistry.Register(spawnConfig);
+        ServiceRegistry.Register(validationService);
+
+        // Call without GridSpawner - should still work
+        SpawnSystem.SpawnEmptyWorld(testOrigin, null);
+
+        Debug.Assert(ServiceRegistry.TryResolve<GridService>(out gridService), "[QATestingSystem] Error: GridService not registered after SpawnEmptyWorld without GridSpawner.");
+
+        Debug.Log("[QATestingSystem] ✓ No GridSpawner test passed.");
+
+        // Cleanup
+        ServiceRegistry.Clear();
+        
+        Debug.Log("[QATestingSystem] All tests for SpawnSystem completed successfully.");
     }
 }
