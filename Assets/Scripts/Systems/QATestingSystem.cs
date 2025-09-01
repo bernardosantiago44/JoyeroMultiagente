@@ -13,6 +13,10 @@ public static class QATestingSystem
         TestValidationService();
         TestSpawnSystem();
         TestRobotController();
+        TestJewel();
+        TestZoneController();
+        TestMetricsLogger();
+        TestRuleSystem();
     }
 
     public static void TestGridCell()
@@ -802,6 +806,205 @@ public static class QATestingSystem
         // Cleanup
         UnityEngine.Object.DestroyImmediate(robotGameObject);
         ServiceRegistry.Clear();
+
+        Debug.Log("[QATestingSystem] All tests for RobotController completed.");
+    }
+
+    public static void TestJewel()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for Jewel.");
+
+        // Setup: Create basic grid service
+        var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
+        
+        var widthField = simConfig.GetType().GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
+        var heightField = simConfig.GetType().GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
+        var cellSizeField = simConfig.GetType().GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        widthField?.SetValue(simConfig, 5);
+        heightField?.SetValue(simConfig, 5);
+        cellSizeField?.SetValue(simConfig, 1.0f);
+
+        ServiceRegistry.Clear();
+        ServiceRegistry.Register(simConfig);
+
+        SpawnSystem.SpawnEmptyWorld(Vector3.zero);
+
+        // Test 1: Create jewel GameObject
+        var jewelGameObject = new GameObject("TestJewel");
+        var jewel = jewelGameObject.AddComponent<Jewel>();
+
+        // Set position within grid bounds
+        jewelGameObject.transform.position = new Vector3(1, 0, 1);
+
+        // Test 2: Initialize jewel
+        jewel.SendMessage("Start");
+
+        Debug.Assert(jewel.Color == JewelColor.Red, "[QATestingSystem] Error: Default jewel color should be Red.");
+        Debug.Assert(jewel.Value == 1, "[QATestingSystem] Error: Default jewel value should be 1.");
+        Debug.Assert(jewel.IsAvailable, "[QATestingSystem] Error: New jewel should be available.");
+
+        Debug.Log("[QATestingSystem] ✓ Jewel initialization test passed.");
+
+        // Test 3: Pick up jewel
+        bool pickupResult = jewel.TryPickUp();
+        Debug.Assert(pickupResult, "[QATestingSystem] Error: Jewel pickup should succeed.");
+        Debug.Assert(!jewel.IsAvailable, "[QATestingSystem] Error: Jewel should not be available after pickup.");
+        Debug.Assert(!jewelGameObject.activeInHierarchy, "[QATestingSystem] Error: Jewel GameObject should be inactive after pickup.");
+
+        Debug.Log("[QATestingSystem] ✓ Jewel pickup test passed.");
+
+        // Test 4: Try to pick up again (should fail)
+        bool secondPickup = jewel.TryPickUp();
+        Debug.Assert(!secondPickup, "[QATestingSystem] Error: Second pickup should fail.");
+
+        Debug.Log("[QATestingSystem] ✓ Jewel double pickup prevention test passed.");
+
+        // Cleanup
+        UnityEngine.Object.DestroyImmediate(jewelGameObject);
+        ServiceRegistry.Clear();
+
+        Debug.Log("[QATestingSystem] All tests for Jewel completed.");
+    }
+
+    public static void TestZoneController()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for ZoneController.");
+
+        // Setup: Create basic grid service
+        var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
+        
+        var widthField = simConfig.GetType().GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
+        var heightField = simConfig.GetType().GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
+        var cellSizeField = simConfig.GetType().GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        widthField?.SetValue(simConfig, 5);
+        heightField?.SetValue(simConfig, 5);
+        cellSizeField?.SetValue(simConfig, 1.0f);
+
+        ServiceRegistry.Clear();
+        ServiceRegistry.Register(simConfig);
+
+        SpawnSystem.SpawnEmptyWorld(Vector3.zero);
+
+        // Test 1: Create zone GameObject
+        var zoneGameObject = new GameObject("TestZone");
+        var zone = zoneGameObject.AddComponent<ZoneController>();
+
+        // Set position within grid bounds
+        zoneGameObject.transform.position = new Vector3(2, 0, 2);
+
+        // Test 2: Initialize zone
+        zone.SendMessage("Start");
+
+        Debug.Assert(zone.AcceptedColor == JewelColor.Red, "[QATestingSystem] Error: Default zone color should be Red.");
+
+        Debug.Log("[QATestingSystem] ✓ ZoneController initialization test passed.");
+
+        // Test 3: Try to deliver matching jewel
+        bool deliveryResult = zone.TryDeliverJewel(JewelColor.Red, 10);
+        Debug.Assert(deliveryResult, "[QATestingSystem] Error: Delivery of matching color should succeed.");
+
+        Debug.Log("[QATestingSystem] ✓ ZoneController valid delivery test passed.");
+
+        // Test 4: Try to deliver non-matching jewel
+        bool wrongDelivery = zone.TryDeliverJewel(JewelColor.Blue, 5);
+        Debug.Assert(!wrongDelivery, "[QATestingSystem] Error: Delivery of wrong color should fail.");
+
+        Debug.Log("[QATestingSystem] ✓ ZoneController invalid delivery test passed.");
+
+        // Cleanup
+        UnityEngine.Object.DestroyImmediate(zoneGameObject);
+        ServiceRegistry.Clear();
+
+        Debug.Log("[QATestingSystem] All tests for ZoneController completed.");
+    }
+
+    public static void TestMetricsLogger()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for MetricsLogger.");
+
+        // Test 1: Create MetricsLogger
+        var loggerGameObject = new GameObject("TestMetricsLogger");
+        var logger = loggerGameObject.AddComponent<MetricsLogger>();
+
+        // Test 2: Initialize logger
+        logger.SendMessage("Awake");
+        logger.SendMessage("Start");
+
+        Debug.Assert(logger.TotalSteps == 0, "[QATestingSystem] Error: Initial steps should be 0.");
+        Debug.Assert(logger.TotalJewelsDelivered == 0, "[QATestingSystem] Error: Initial deliveries should be 0.");
+        Debug.Assert(logger.TotalScore == 0, "[QATestingSystem] Error: Initial score should be 0.");
+
+        Debug.Log("[QATestingSystem] ✓ MetricsLogger initialization test passed.");
+
+        // Test 3: Record robot steps
+        logger.RecordRobotStep(1);
+        logger.RecordRobotStep(1);
+        logger.RecordRobotStep(2);
+
+        Debug.Assert(logger.TotalSteps == 3, "[QATestingSystem] Error: Should have recorded 3 steps.");
+
+        Debug.Log("[QATestingSystem] ✓ MetricsLogger step recording test passed.");
+
+        // Test 4: Record jewel deliveries
+        logger.RecordJewelDelivered(JewelColor.Red, 5);
+        logger.RecordJewelDelivered(JewelColor.Blue, 10);
+
+        Debug.Assert(logger.TotalJewelsDelivered == 2, "[QATestingSystem] Error: Should have recorded 2 deliveries.");
+        Debug.Assert(logger.TotalScore == 15, "[QATestingSystem] Error: Total score should be 15.");
+
+        Debug.Log("[QATestingSystem] ✓ MetricsLogger delivery recording test passed.");
+
+        // Test 5: Reset functionality
+        logger.Reset();
+
+        Debug.Assert(logger.TotalSteps == 0, "[QATestingSystem] Error: Steps should be reset to 0.");
+        Debug.Assert(logger.TotalJewelsDelivered == 0, "[QATestingSystem] Error: Deliveries should be reset to 0.");
+        Debug.Assert(logger.TotalScore == 0, "[QATestingSystem] Error: Score should be reset to 0.");
+
+        Debug.Log("[QATestingSystem] ✓ MetricsLogger reset test passed.");
+
+        // Cleanup
+        UnityEngine.Object.DestroyImmediate(loggerGameObject);
+
+        Debug.Log("[QATestingSystem] All tests for MetricsLogger completed.");
+    }
+
+    public static void TestRuleSystem()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for RuleSystem.");
+
+        // Test 1: Create RuleSystem
+        var ruleSystem = new RuleSystem();
+
+        // Test 2: Test validation methods
+        bool moveValidation = ruleSystem.ValidateMovement(1, new Vector2Int(0, 0), new Vector2Int(1, 1));
+        Debug.Assert(moveValidation, "[QATestingSystem] Error: Movement validation should succeed by default.");
+
+        bool pickupValidation = ruleSystem.ValidatePickup(1, JewelColor.Red);
+        Debug.Assert(pickupValidation, "[QATestingSystem] Error: Pickup validation should succeed by default.");
+
+        bool deliveryValidation = ruleSystem.ValidateDelivery(1, JewelColor.Red, JewelColor.Red);
+        Debug.Assert(deliveryValidation, "[QATestingSystem] Error: Delivery validation should succeed for matching colors.");
+
+        bool wrongDeliveryValidation = ruleSystem.ValidateDelivery(1, JewelColor.Red, JewelColor.Blue);
+        Debug.Assert(!wrongDeliveryValidation, "[QATestingSystem] Error: Delivery validation should fail for mismatched colors.");
+
+        Debug.Log("[QATestingSystem] ✓ RuleSystem validation tests passed.");
+
+        // Test 3: Test end condition with no jewels
+        bool shouldEnd = ruleSystem.ShouldEndSimulation();
+        Debug.Log($"[QATestingSystem] End simulation check (no jewels in scene): {shouldEnd}");
+
+        int jewelCount = ruleSystem.GetAvailableJewelCount();
+        Debug.Assert(jewelCount == 0, "[QATestingSystem] Error: Should find 0 jewels in empty scene.");
+
+        Debug.Log("[QATestingSystem] ✓ RuleSystem end condition test passed.");
+
+        Debug.Log("[QATestingSystem] All tests for RuleSystem completed.");
+    }
+}
         
         Debug.Log("[QATestingSystem] All tests for RobotController completed successfully.");
     }

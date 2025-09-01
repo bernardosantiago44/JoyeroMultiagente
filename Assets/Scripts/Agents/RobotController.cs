@@ -17,12 +17,17 @@ public sealed class RobotController : MonoBehaviour, IAgent
     
     private GridService _gridService;
     private PathfindingComponent _pathfindingComponent;
+    private MetricsLogger _metricsLogger;
+    private RuleSystem _ruleSystem;
     private Vector2Int _currentCell;
     private Vector2Int _finalGoal; // Store final destination for replanning
     private RobotState _currentState = RobotState.Idle;
     private Vector3? _moveTarget;
     private float _moveStartTime;
     private Vector3 _moveStartPosition;
+    
+    // Jewel carrying state
+    private Jewel _carriedJewel;
     
     /// <summary>Estados básicos del robot para el movimiento</summary>
     private enum RobotState
@@ -36,6 +41,12 @@ public sealed class RobotController : MonoBehaviour, IAgent
     
     /// <summary>Posición actual del robot en el grid</summary>
     public Vector2Int Cell => _currentCell;
+    
+    /// <summary>True si el robot está cargando una joya</summary>
+    public bool IsCarryingJewel => _carriedJewel != null;
+    
+    /// <summary>Joya que está cargando el robot, null si no tiene ninguna</summary>
+    public Jewel CarriedJewel => _carriedJewel;
 
     private void Awake()
     {
@@ -55,6 +66,10 @@ public sealed class RobotController : MonoBehaviour, IAgent
             Debug.LogError("[RobotController] GridService not found in ServiceRegistry.");
             return;
         }
+
+        // Obtener servicios opcionales
+        ServiceRegistry.TryResolve<MetricsLogger>(out _metricsLogger);
+        ServiceRegistry.TryResolve<RuleSystem>(out _ruleSystem);
 
         // Validar posición inicial en el grid
         _currentCell = _gridService.WorldToCell(transform.position);
@@ -226,6 +241,12 @@ public sealed class RobotController : MonoBehaviour, IAgent
         _gridService.RemoveOccupant(oldCell, CellOccupant.Robot);
         _gridService.AddOccupant(_currentCell, CellOccupant.Robot);
         
+        // Registrar paso en métricas
+        if (_metricsLogger != null)
+        {
+            _metricsLogger.RecordRobotStep(Id);
+        }
+        
         Debug.Log($"[RobotController] Robot {Id} reached waypoint at cell {_currentCell}");
         
         // Avanzar al siguiente waypoint
@@ -240,6 +261,107 @@ public sealed class RobotController : MonoBehaviour, IAgent
             _moveTarget = null;
             _currentState = RobotState.Idle;
             Debug.Log($"[RobotController] Robot {Id} completed movement to {_currentCell}");
+        }
+    }
+    
+    /// <summary>
+    /// Simula recoger una joya en la celda actual.
+    /// </summary>
+    /// <returns>True si se pudo recoger una joya</returns>
+    public bool TryPickupJewel()
+    {
+        if (_carriedJewel != null)
+        {
+            Debug.LogWarning($"[RobotController] Robot {Id} is already carrying a jewel");
+            return false;
+        }
+        
+        // Buscar joya en la celda actual
+        var jewelsInCell = Object.FindObjectsOfType<Jewel>();
+        Jewel targetJewel = null;
+        
+        foreach (var jewel in jewelsInCell)
+        {
+            if (jewel.Cell == _currentCell && jewel.IsAvailable)
+            {
+                targetJewel = jewel;
+                break;
+            }
+        }
+        
+        if (targetJewel == null)
+        {
+            Debug.LogWarning($"[RobotController] No available jewel found at cell {_currentCell}");
+            return false;
+        }
+        
+        // Validar con RuleSystem
+        if (_ruleSystem != null && !_ruleSystem.ValidatePickup(Id, targetJewel.Color))
+        {
+            Debug.LogWarning($"[RobotController] Pickup not allowed by RuleSystem");
+            return false;
+        }
+        
+        // Recoger la joya
+        if (targetJewel.TryPickUp())
+        {
+            _carriedJewel = targetJewel;
+            Debug.Log($"[RobotController] Robot {Id} picked up {targetJewel.Color} jewel at {_currentCell}");
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// Simula entregar la joya cargada a una zona en la celda actual.
+    /// </summary>
+    /// <returns>True si se pudo entregar la joya</returns>
+    public bool TryDropJewel()
+    {
+        if (_carriedJewel == null)
+        {
+            Debug.LogWarning($"[RobotController] Robot {Id} is not carrying any jewel");
+            return false;
+        }
+        
+        // Buscar zona en la celda actual
+        var zonesInCell = Object.FindObjectsOfType<ZoneController>();
+        ZoneController targetZone = null;
+        
+        foreach (var zone in zonesInCell)
+        {
+            if (zone.Cell == _currentCell)
+            {
+                targetZone = zone;
+                break;
+            }
+        }
+        
+        if (targetZone == null)
+        {
+            Debug.LogWarning($"[RobotController] No zone found at cell {_currentCell}");
+            return false;
+        }
+        
+        // Validar con RuleSystem
+        if (_ruleSystem != null && !_ruleSystem.ValidateDelivery(Id, _carriedJewel.Color, targetZone.AcceptedColor))
+        {
+            Debug.LogWarning($"[RobotController] Delivery not allowed by RuleSystem");
+            return false;
+        }
+        
+        // Intentar entregar la joya
+        if (targetZone.TryDeliverJewel(_carriedJewel.Color, _carriedJewel.Value))
+        {
+            Debug.Log($"[RobotController] Robot {Id} successfully delivered {_carriedJewel.Color} jewel to zone at {_currentCell}");
+            _carriedJewel = null;
+            return true;
+        }
+        else
+        {
+            Debug.LogWarning($"[RobotController] Zone rejected the jewel delivery");
+            return false;
         }
     }
     
