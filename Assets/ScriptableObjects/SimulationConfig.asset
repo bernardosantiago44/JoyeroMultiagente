@@ -12,3 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb08b12b8dc464514a681bc6dd54ab77, type: 3}
   m_Name: SimulationConfig
   m_EditorClassIdentifier: 
+  _width: 20
+  _height: 20
+  _cellSize: 2.72
+  _maxTime: 300
+  _obstacleDensityMax: 0.4
+  _minWidth: 2
+  _minHeight: 2

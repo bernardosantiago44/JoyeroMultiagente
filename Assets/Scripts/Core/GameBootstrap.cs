@@ -18,6 +18,10 @@ public sealed class GameBootstrap : MonoBehaviour
         [SerializeField] private SpawnConfig _spawnConfig;
         [SerializeField] private ValidationService _validationService; // puede ser null al inicio
 
+        [Header("World Setup")]
+        [SerializeField] private GridSpawner _gridSpawner; // Opcional para elementos estructurales
+        [SerializeField] private Vector3 _worldOrigin = Vector3.zero; // Origen del mundo para el grid
+
         public static GameBootstrap Instance { get; private set; }
 
         private void Awake()
@@ -68,5 +72,21 @@ public sealed class GameBootstrap : MonoBehaviour
             }
 
             Debug.Log("[GameBootstrap] Inicializado. Configs y servicios registrados.");
+        }
+
+        private void Start()
+        {
+            // 4) Crear el mundo base después de que se hayan registrado todas las configuraciones
+            Debug.Log("[GameBootstrap] Creating empty world...");
+            
+            try
+            {
+                SpawnSystem.SpawnEmptyWorld(_worldOrigin, _gridSpawner);
+                Debug.Log("[GameBootstrap] Empty world created successfully.");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[GameBootstrap] Failed to create empty world: {ex.Message}");
+            }
         }
     }

@@ -208,11 +208,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f8d73908c687f4379be8c1a952f0533c, type: 3}
   m_PrefabInstance: {fileID: 146174738}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &146174740 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f8d73908c687f4379be8c1a952f0533c, type: 3}
-  m_PrefabInstance: {fileID: 146174738}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &254118297 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f528edd6304be49bb864a42f8fcba390, type: 3}
@@ -904,11 +899,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f8d73908c687f4379be8c1a952f0533c, type: 3}
   m_PrefabInstance: {fileID: 1116259749}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1116259751 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f8d73908c687f4379be8c1a952f0533c, type: 3}
-  m_PrefabInstance: {fileID: 1116259749}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1262297880
 GameObject:
   m_ObjectHideFlags: 0
@@ -1074,6 +1064,90 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1322330254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1322330256}
+  - component: {fileID: 1322330255}
+  - component: {fileID: 1322330257}
+  m_Layer: 0
+  m_Name: _GridSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1322330255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1322330254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dea80efcc7d646819a67438c45a4ddb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardRenderer: {fileID: 985058180}
+  rupeePrefab: {fileID: 2032760887}
+  parent: {fileID: 0}
+  cellSize: 3
+  count: 20
+  randomYRotation: 0
+  spawnYOffset: 0
+  seed: 0
+--- !u!4 &1322330256
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1322330254}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.7745442, y: 2.1149426, z: -6.36166}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1322330257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1322330254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc8f1bc167c348b08a0b7db04f4e235, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _previewWidth: 20
+  _previewHeight: 20
+  _previewCellSize: 1
+  _previewOrigin: {x: -27.4, y: 0, z: -27.4}
+  _showGrid: 1
+  _showCellTypes: 1
+  _showOccupancy: 1
+  _useTileMode: 0
+  _emptyColor: {r: 0.8, g: 0.8, b: 0.8, a: 0.3}
+  _wallColor: {r: 0.5, g: 0.3, b: 0.2, a: 0.8}
+  _shelfColor: {r: 0.7, g: 0.5, b: 0.3, a: 0.8}
+  _jewelColor: {r: 1, g: 0.8, b: 0.2, a: 0.6}
+  _zoneColor: {r: 0.2, g: 0.8, b: 0.3, a: 0.6}
+  _robotSpawnColor: {r: 0.3, g: 0.6, b: 1, a: 0.6}
+  _gridLineColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.5}
+  _robotOccupantColor: {r: 1, g: 0.2, b: 0.2, a: 0.7}
+  _jewelOccupantColor: {r: 1, g: 1, b: 0.2, a: 0.5}
+  _zoneOccupantColor: {r: 0.2, g: 1, b: 0.2, a: 0.3}
+  _reservedColor: {r: 0.8, g: 0.4, b: 0.8, a: 0.4}
 --- !u!1001 &1379625185
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1437,6 +1511,8 @@ MonoBehaviour:
   _simulationConfig: {fileID: 11400000, guid: 8edf1492af8134599a51605209c5ff8e, type: 2}
   _agentConfig: {fileID: 11400000, guid: d11b8b877ea6f450a8921a008927f35c, type: 2}
   _spawnConfig: {fileID: 11400000, guid: 4efca890ff0ce4e4194b48e1153641e0, type: 2}
+  _gridSpawner: {fileID: 1322330255}
+  _worldOrigin: {x: 0, y: 0, z: 0}
 --- !u!4 &1967256455
 Transform:
   m_ObjectHideFlags: 0
@@ -1457,100 +1533,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f8d73908c687f4379be8c1a952f0533c, type: 3}
   m_PrefabInstance: {fileID: 1379625185}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2060067925
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2060067927}
-  - component: {fileID: 2060067926}
-  - component: {fileID: 2060067928}
-  - component: {fileID: 2060067929}
-  m_Layer: 0
-  m_Name: RupeeSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2060067926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2060067925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dea80efcc7d646819a67438c45a4ddb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  boardRenderer: {fileID: 985058180}
-  rupeePrefab: {fileID: 146174740}
-  parent: {fileID: 0}
-  cellSize: 1
-  count: 8
-  randomYRotation: 0
-  spawnYOffset: 0
-  seed: 0
---- !u!4 &2060067927
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2060067925}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.7123558, y: -3.8416054, z: -8.720059}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2060067928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2060067925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dea80efcc7d646819a67438c45a4ddb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  boardRenderer: {fileID: 985058180}
-  rupeePrefab: {fileID: 1116259751}
-  parent: {fileID: 0}
-  cellSize: 1
-  count: 9
-  randomYRotation: 0
-  spawnYOffset: 0
-  seed: 0
---- !u!114 &2060067929
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2060067925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dea80efcc7d646819a67438c45a4ddb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  boardRenderer: {fileID: 985058180}
-  rupeePrefab: {fileID: 2032760887}
-  parent: {fileID: 0}
-  cellSize: 1
-  count: 10
-  randomYRotation: 0
-  spawnYOffset: 0
-  seed: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1563,6 +1545,6 @@ SceneRoots:
   - {fileID: 146174738}
   - {fileID: 1116259749}
   - {fileID: 1379625185}
-  - {fileID: 2060067927}
   - {fileID: 1967256455}
   - {fileID: 1262297882}
+  - {fileID: 1322330256}
