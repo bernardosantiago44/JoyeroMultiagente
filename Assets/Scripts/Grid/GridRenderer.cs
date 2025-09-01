@@ -39,6 +39,7 @@ public sealed class GridRenderer : MonoBehaviour
     [SerializeField] private Color _reservedColor = new Color(0.8f, 0.4f, 0.8f, 0.4f);
 
     private GridService _gridService;
+    private SimulationConfig _config;
     private bool _hasGridService;
 
     /// <summary>
@@ -48,7 +49,7 @@ public sealed class GridRenderer : MonoBehaviour
     public void Start()
     {
         _hasGridService = ServiceRegistry.TryResolve<GridService>(out _gridService);
-        
+
         if (!_hasGridService)
         {
             Debug.Log("[GridRenderer] GridService not found. Using preview mode.");
@@ -56,6 +57,13 @@ public sealed class GridRenderer : MonoBehaviour
         else
         {
             Debug.Log($"[GridRenderer] Connected to GridService. Grid size: {_gridService.Width}x{_gridService.Height}");
+        }
+
+        if (ServiceRegistry.TryResolve<SimulationConfig>(out var _config))
+        {
+            _previewWidth = _config.Width;
+            _previewHeight = _config.Height;
+            _previewCellSize = _config.CellSize;
         }
     }
 
