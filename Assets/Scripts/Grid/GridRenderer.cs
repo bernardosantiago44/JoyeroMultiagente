@@ -21,7 +21,6 @@ public sealed class GridRenderer : MonoBehaviour
     [SerializeField] private bool _showGrid = true;
     [SerializeField] private bool _showCellTypes = true;
     [SerializeField] private bool _showOccupancy = true;
-    [SerializeField] private bool _useTileMode = false; // Future extensibility
     
     [Header("Colors")]
     [SerializeField] private Color _emptyColor = new Color(0.8f, 0.8f, 0.8f, 0.3f);
