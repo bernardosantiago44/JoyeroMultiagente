@@ -18,6 +18,7 @@ public sealed class RobotController : MonoBehaviour, IAgent
     private GridService _gridService;
     private PathfindingComponent _pathfindingComponent;
     private Vector2Int _currentCell;
+    private Vector2Int _finalGoal; // Store final destination for replanning
     private RobotState _currentState = RobotState.Idle;
     private Vector3? _moveTarget;
     private float _moveStartTime;
@@ -87,6 +88,7 @@ public sealed class RobotController : MonoBehaviour, IAgent
         if (_pathfindingComponent.RequestPathToCellPosition(_currentCell, targetCell))
         {
             _currentState = RobotState.MovingToTarget;
+            _finalGoal = targetCell; // Store for potential replanning
             Debug.Log($"[RobotController] Robot {Id} starting movement from {_currentCell} to {targetCell}");
             return true;
         }
@@ -156,6 +158,14 @@ public sealed class RobotController : MonoBehaviour, IAgent
     /// </summary>
     private void StartMoveToNextWaypoint()
     {
+        // Verificar y replanear si es necesario (feature opcional)
+        if (!_pathfindingComponent.ValidateAndReplanIfNeeded(transform.position, _finalGoal))
+        {
+            Debug.LogWarning($"[RobotController] Robot {Id} could not validate or replan path. Stopping movement.");
+            _currentState = RobotState.Idle;
+            return;
+        }
+
         var nextWaypointWorld = _pathfindingComponent.GetNextWaypointWorldPosition();
         if (nextWaypointWorld.HasValue)
         {

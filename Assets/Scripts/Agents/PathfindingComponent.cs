@@ -124,4 +124,32 @@ public sealed class PathfindingComponent : MonoBehaviour
 
         return _gridService.CellToWorld(_currentPath[_currentWaypointIndex]);
     }
+
+    /// <summary>
+    /// Verifica si el siguiente waypoint sigue siendo walkable y replana si es necesario.
+    /// </summary>
+    /// <param name="currentPosition">Posición actual del agente en el mundo</param>
+    /// <param name="finalGoal">Objetivo final del movimiento</param>
+    /// <returns>true si el path es válido o se pudo replanear</returns>
+    public bool ValidateAndReplanIfNeeded(Vector3 currentPosition, Vector2Int finalGoal)
+    {
+        if (!HasPath || _gridService == null || _pathfindingService == null)
+            return false;
+
+        var nextWaypoint = NextWaypoint;
+        if (!nextWaypoint.HasValue)
+            return false;
+
+        // Verificar si el siguiente waypoint sigue siendo walkable
+        if (!_gridService.IsWalkable(nextWaypoint.Value))
+        {
+            Debug.LogWarning($"[PathfindingComponent] Next waypoint {nextWaypoint.Value} is no longer walkable. Replanning...");
+            
+            // Intentar replanear desde la posición actual
+            var currentCell = _gridService.WorldToCell(currentPosition);
+            return RequestPathToCellPosition(currentCell, finalGoal);
+        }
+
+        return true; // Path válido
+    }
 }

@@ -786,6 +786,19 @@ public static class QATestingSystem
         
         Debug.Log("[QATestingSystem] ✓ Grid occupancy test passed.");
 
+        // Test 7: Basic replan functionality (optional feature)
+        Debug.Log("[QATestingSystem] Test 7: Basic replan functionality");
+        
+        // Create a new path first
+        robotController.MoveToCell(new Vector2Int(1, 1));
+        Debug.Assert(pathfindingComponent.HasPath, "[QATestingSystem] Error: Should have path for replan test.");
+        
+        // Test the ValidateAndReplanIfNeeded method
+        bool validationResult = pathfindingComponent.ValidateAndReplanIfNeeded(robotGameObject.transform.position, new Vector2Int(1, 1));
+        Debug.Assert(validationResult, "[QATestingSystem] Error: Path validation should succeed in empty grid.");
+        
+        Debug.Log("[QATestingSystem] ✓ Basic replan functionality test passed.");
+
         // Cleanup
         UnityEngine.Object.DestroyImmediate(robotGameObject);
         ServiceRegistry.Clear();
