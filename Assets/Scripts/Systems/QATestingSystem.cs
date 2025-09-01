@@ -8,6 +8,7 @@ public static class QATestingSystem
         TestGridCell();
         TestGridMap();
         TestGridService();
+        TestPathfindingService();
         TestGridRenderer();
         TestValidationService();
         TestSpawnSystem();
@@ -273,6 +274,167 @@ public static class QATestingSystem
         Debug.Log("[QATestingSystem] ✓ GridService constructor validation test passed.");
 
         Debug.Log("[QATestingSystem] All tests for GridService completed successfully.");
+    }
+
+    public static void TestPathfindingService()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for PathfindingService.");
+
+        // Setup: Create a test map and service
+        var map = new GridMap(5, 5);
+        var gridService = new GridService(map, Vector3.zero, 1.0f);
+        var pathfindingService = new PathfindingService(gridService);
+
+        // Test 1: Constructor validation
+        try
+        {
+            var invalidService = new PathfindingService(null);
+            Debug.Assert(false, "[QATestingSystem] Error: PathfindingService constructor should reject null GridService.");
+        }
+        catch (System.ArgumentNullException)
+        {
+            // Expected
+        }
+        Debug.Log("[QATestingSystem] ✓ PathfindingService constructor validation test passed.");
+
+        // Test 2: Simple path - start equals goal
+        var result = pathfindingService.TryFindPath(new Vector2Int(1, 1), new Vector2Int(1, 1), out var path);
+        Debug.Assert(result, "[QATestingSystem] Error: Should find path when start equals goal.");
+        Debug.Assert(path.Count == 1, "[QATestingSystem] Error: Path should contain only start position when start equals goal.");
+        Debug.Assert(path[0] == new Vector2Int(1, 1), "[QATestingSystem] Error: Path should contain start position when start equals goal.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService start equals goal test passed.");
+
+        // Test 3: Out of bounds - start
+        result = pathfindingService.TryFindPath(new Vector2Int(-1, 0), new Vector2Int(1, 1), out path);
+        Debug.Assert(!result, "[QATestingSystem] Error: Should not find path when start is out of bounds.");
+        Debug.Assert(path.Count == 0, "[QATestingSystem] Error: Path should be empty when start is out of bounds.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService out of bounds start test passed.");
+
+        // Test 4: Out of bounds - goal
+        result = pathfindingService.TryFindPath(new Vector2Int(1, 1), new Vector2Int(10, 10), out path);
+        Debug.Assert(!result, "[QATestingSystem] Error: Should not find path when goal is out of bounds.");
+        Debug.Assert(path.Count == 0, "[QATestingSystem] Error: Path should be empty when goal is out of bounds.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService out of bounds goal test passed.");
+
+        // Test 5: Blocked start
+        map.SetCell(2, 2, new GridCell(CellType.Wall));
+        result = pathfindingService.TryFindPath(new Vector2Int(2, 2), new Vector2Int(1, 1), out path);
+        Debug.Assert(!result, "[QATestingSystem] Error: Should not find path when start is blocked.");
+        Debug.Assert(path.Count == 0, "[QATestingSystem] Error: Path should be empty when start is blocked.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService blocked start test passed.");
+
+        // Test 6: Blocked goal
+        result = pathfindingService.TryFindPath(new Vector2Int(1, 1), new Vector2Int(2, 2), out path);
+        Debug.Assert(!result, "[QATestingSystem] Error: Should not find path when goal is blocked.");
+        Debug.Assert(path.Count == 0, "[QATestingSystem] Error: Path should be empty when goal is blocked.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService blocked goal test passed.");
+
+        // Test 7: Simple straight line path (horizontal)
+        // Clear the wall first
+        map.SetCell(2, 2, new GridCell(CellType.Empty));
+        result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(3, 0), out path);
+        Debug.Assert(result, "[QATestingSystem] Error: Should find horizontal straight line path.");
+        Debug.Assert(path.Count == 4, "[QATestingSystem] Error: Horizontal path from (0,0) to (3,0) should have 4 cells.");
+        Debug.Assert(path[0] == new Vector2Int(0, 0), "[QATestingSystem] Error: Path should start at (0,0).");
+        Debug.Assert(path[3] == new Vector2Int(3, 0), "[QATestingSystem] Error: Path should end at (3,0).");
+        // Verify all cells are consecutive
+        for (int i = 0; i < path.Count; i++)
+        {
+            Debug.Assert(path[i] == new Vector2Int(i, 0), $"[QATestingSystem] Error: Path cell {i} should be ({i},0) but was {path[i]}.");
+        }
+        Debug.Log("[QATestingSystem] ✓ PathfindingService horizontal straight line test passed.");
+
+        // Test 8: Simple straight line path (vertical)
+        result = pathfindingService.TryFindPath(new Vector2Int(1, 0), new Vector2Int(1, 3), out path);
+        Debug.Assert(result, "[QATestingSystem] Error: Should find vertical straight line path.");
+        Debug.Assert(path.Count == 4, "[QATestingSystem] Error: Vertical path from (1,0) to (1,3) should have 4 cells.");
+        Debug.Assert(path[0] == new Vector2Int(1, 0), "[QATestingSystem] Error: Path should start at (1,0).");
+        Debug.Assert(path[3] == new Vector2Int(1, 3), "[QATestingSystem] Error: Path should end at (1,3).");
+        // Verify all cells are consecutive
+        for (int i = 0; i < path.Count; i++)
+        {
+            Debug.Assert(path[i] == new Vector2Int(1, i), $"[QATestingSystem] Error: Path cell {i} should be (1,{i}) but was {path[i]}.");
+        }
+        Debug.Log("[QATestingSystem] ✓ PathfindingService vertical straight line test passed.");
+
+        // Test 9: L-shaped path around obstacle
+        // Create an obstacle that forces an L-shaped path
+        map.SetCell(2, 1, new GridCell(CellType.Wall));
+        result = pathfindingService.TryFindPath(new Vector2Int(1, 1), new Vector2Int(3, 1), out path);
+        Debug.Assert(result, "[QATestingSystem] Error: Should find L-shaped path around obstacle.");
+        Debug.Assert(path.Count > 3, "[QATestingSystem] Error: L-shaped path should be longer than direct path.");
+        Debug.Assert(path[0] == new Vector2Int(1, 1), "[QATestingSystem] Error: Path should start at (1,1).");
+        Debug.Assert(path[path.Count - 1] == new Vector2Int(3, 1), "[QATestingSystem] Error: Path should end at (3,1).");
+        // Verify path doesn't go through the wall
+        Debug.Assert(!path.Contains(new Vector2Int(2, 1)), "[QATestingSystem] Error: Path should not go through wall at (2,1).");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService L-shaped path test passed.");
+
+        // Test 10: No path available (completely blocked)
+        // Create a wall that completely blocks the path
+        for (int y = 0; y < 5; y++)
+        {
+            map.SetCell(2, y, new GridCell(CellType.Wall));
+        }
+        result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(4, 0), out path);
+        Debug.Assert(!result, "[QATestingSystem] Error: Should not find path when completely blocked.");
+        Debug.Assert(path.Count == 0, "[QATestingSystem] Error: Path should be empty when no path available.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService no path available test passed.");
+
+        // Test 11: Extra cost parameter
+        // Clear walls for this test
+        for (int y = 0; y < 5; y++)
+        {
+            map.SetCell(2, y, new GridCell(CellType.Empty));
+        }
+        
+        // Test with and without extra cost - should find same path but different cost
+        result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 0), out var pathNormalCost);
+        var resultExtraCost = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 0), out var pathExtraCost, extraCost: 5);
+        
+        Debug.Assert(result && resultExtraCost, "[QATestingSystem] Error: Both normal and extra cost paths should be found.");
+        Debug.Assert(pathNormalCost.Count == pathExtraCost.Count, "[QATestingSystem] Error: Path length should be same regardless of extra cost.");
+        // Verify paths are identical
+        for (int i = 0; i < pathNormalCost.Count; i++)
+        {
+            Debug.Assert(pathNormalCost[i] == pathExtraCost[i], "[QATestingSystem] Error: Paths should be identical regardless of extra cost.");
+        }
+        Debug.Log("[QATestingSystem] ✓ PathfindingService extra cost test passed.");
+
+        // Test 12: Max iterations limit
+        // This is harder to test directly, but we can verify the parameter is accepted
+        result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(1, 0), out path, maxIterations: 1);
+        // Should still find a simple path even with low iteration limit
+        Debug.Assert(result, "[QATestingSystem] Error: Should find simple path even with low iteration limit.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService max iterations test passed.");
+
+        // Test 13: Deterministic behavior - same input should produce same output
+        result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 2), out var path1);
+        var result2 = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(2, 2), out var path2);
+        
+        Debug.Assert(result == result2, "[QATestingSystem] Error: Pathfinding should be deterministic in result.");
+        if (result && result2)
+        {
+            Debug.Assert(path1.Count == path2.Count, "[QATestingSystem] Error: Pathfinding should be deterministic in path length.");
+            for (int i = 0; i < path1.Count; i++)
+            {
+                Debug.Assert(path1[i] == path2[i], "[QATestingSystem] Error: Pathfinding should be deterministic in path content.");
+            }
+        }
+        Debug.Log("[QATestingSystem] ✓ PathfindingService deterministic behavior test passed.");
+
+        // Test 14: Diagonal movement not allowed (only 4-directional)
+        result = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(1, 1), out path);
+        Debug.Assert(result, "[QATestingSystem] Error: Should find path to diagonal position using 4-directional movement.");
+        // Verify no diagonal steps in path
+        for (int i = 1; i < path.Count; i++)
+        {
+            var step = path[i] - path[i - 1];
+            var manhattanDistance = Mathf.Abs(step.x) + Mathf.Abs(step.y);
+            Debug.Assert(manhattanDistance == 1, "[QATestingSystem] Error: Each step should be exactly 1 Manhattan distance (no diagonals).");
+        }
+        Debug.Log("[QATestingSystem] ✓ PathfindingService 4-directional movement test passed.");
+
+        Debug.Log("[QATestingSystem] All tests for PathfindingService completed successfully.");
     }
 
     public static void TestGridRenderer()
