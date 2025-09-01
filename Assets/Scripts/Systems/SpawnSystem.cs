@@ -41,7 +41,12 @@ public sealed class SpawnSystem
         ServiceRegistry.Register(gridService);
         Debug.Log($"{LOG_PREFIX} GridService registered with origin {origin} and cellSize {simConfig.CellSize}");
 
-        // 4. Poblar con elementos estructurales si hay GridSpawner disponible
+        // 4. Crear y registrar PathfindingService
+        var pathfindingService = new PathfindingService(gridService);
+        ServiceRegistry.Register(pathfindingService);
+        Debug.Log($"{LOG_PREFIX} PathfindingService registered and ready for use");
+
+        // 5. Poblar con elementos estructurales si hay GridSpawner disponible
         if (gridSpawner != null && spawnConfig != null)
         {
             PopulateStructuralElements(gridService, spawnConfig, gridSpawner);
@@ -51,7 +56,7 @@ public sealed class SpawnSystem
             Debug.Log($"{LOG_PREFIX} No GridSpawner or SpawnConfig provided. World remains empty (all cells CellType.Empty)");
         }
 
-        // 5. Ejecutar validaciones Fase B si ValidationService está disponible
+        // 6. Ejecutar validaciones Fase B si ValidationService está disponible
         if (ServiceRegistry.TryResolve<ValidationService>(out var validationService))
         {
             Debug.Log($"{LOG_PREFIX} Running Phase B validations...");

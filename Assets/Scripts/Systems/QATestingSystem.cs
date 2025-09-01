@@ -625,6 +625,16 @@ public static class QATestingSystem
         Debug.Assert(allCellsEmpty, "[QATestingSystem] Error: Not all cells are empty by default.");
         Debug.Log("[QATestingSystem] ✓ Empty cells verification test passed.");
 
+        // Test 2.5: Verify PathfindingService was registered
+        Debug.Assert(ServiceRegistry.TryResolve<PathfindingService>(out var pathfindingService), "[QATestingSystem] Error: PathfindingService not registered after SpawnEmptyWorld.");
+        Debug.Assert(pathfindingService != null, "[QATestingSystem] Error: PathfindingService is null.");
+        
+        // Quick pathfinding test
+        bool pathResult = pathfindingService.TryFindPath(new Vector2Int(0, 0), new Vector2Int(1, 1), out var path);
+        Debug.Assert(pathResult, "[QATestingSystem] Error: PathfindingService should find simple path.");
+        Debug.Assert(path.Count > 0, "[QATestingSystem] Error: PathfindingService should return non-empty path.");
+        Debug.Log("[QATestingSystem] ✓ PathfindingService integration test passed.");
+
         // Test 3: Test without GridSpawner (should work fine)
         Debug.Log("[QATestingSystem] Test 3: Test without GridSpawner");
         

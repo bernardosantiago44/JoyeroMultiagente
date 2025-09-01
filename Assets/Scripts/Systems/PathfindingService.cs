@@ -68,11 +68,9 @@ public sealed class PathfindingService
     {
         var openList = new List<PathNode>();
         var closedSet = new HashSet<Vector2Int>();
-        var openSet = new HashSet<Vector2Int>();
 
         var startNode = new PathNode(start, 0, CalculateManhattanDistance(start, goal), null);
         openList.Add(startNode);
-        openSet.Add(start);
 
         int iterations = 0;
 
@@ -83,7 +81,6 @@ public sealed class PathfindingService
             // Encuentra el nodo con menor F cost
             var currentNode = GetLowestFCostNode(openList);
             openList.Remove(currentNode);
-            openSet.Remove(currentNode.Position);
             closedSet.Add(currentNode.Position);
 
             // ¿Llegamos al objetivo?
@@ -123,7 +120,6 @@ public sealed class PathfindingService
                     // Agregar nuevo nodo a la lista abierta
                     var newNode = new PathNode(neighborPos, tentativeGCost, hCost, currentNode);
                     openList.Add(newNode);
-                    openSet.Add(neighborPos);
                 }
             }
         }
