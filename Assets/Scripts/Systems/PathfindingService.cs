@@ -52,6 +52,8 @@ public sealed class PathfindingService
         }
 
         // Edge case: start o goal no son walkable
+        var x = _gridService.IsWalkable(start);
+        x = _gridService.IsWalkable(goal);
         if (!_gridService.IsWalkable(start) || !_gridService.IsWalkable(goal))
         {
             return false;

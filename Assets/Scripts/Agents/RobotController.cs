@@ -55,13 +55,18 @@ public sealed class RobotController : MonoBehaviour, IAgent
             Debug.LogError("[RobotController] GridService not found in ServiceRegistry.");
             return;
         }
-        
-        // Inicializar posición en el grid
+
+        // Validar posición inicial en el grid
         _currentCell = _gridService.WorldToCell(transform.position);
-        
+        if (!_gridService.IsInside(_currentCell) || !_gridService.IsWalkable(_currentCell))
+        {
+            Debug.LogError($"[RobotController] Initial position {_currentCell} is invalid or not walkable.");
+            return;
+        }
+
         // Marcar la celda como ocupada por este robot
         _gridService.AddOccupant(_currentCell, CellOccupant.Robot);
-        
+
         Debug.Log($"[RobotController] Robot {Id} initialized at cell {_currentCell}");
     }
 
@@ -97,6 +102,14 @@ public sealed class RobotController : MonoBehaviour, IAgent
             Debug.LogWarning($"[RobotController] No path found from {_currentCell} to {targetCell}");
             return false;
         }
+    }
+
+    /// <summary>
+    /// Update de Unity - llama al Tick del agente cada frame.
+    /// </summary>
+    private void Update()
+    {
+        Tick();
     }
 
     /// <summary>
@@ -158,23 +171,20 @@ public sealed class RobotController : MonoBehaviour, IAgent
     /// </summary>
     private void StartMoveToNextWaypoint()
     {
-        // Verificar y replanear si es necesario (feature opcional)
-        if (!_pathfindingComponent.ValidateAndReplanIfNeeded(transform.position, _finalGoal))
-        {
-            Debug.LogWarning($"[RobotController] Robot {Id} could not validate or replan path. Stopping movement.");
-            _currentState = RobotState.Idle;
-            return;
-        }
-
         var nextWaypointWorld = _pathfindingComponent.GetNextWaypointWorldPosition();
         if (nextWaypointWorld.HasValue)
         {
             _moveTarget = nextWaypointWorld.Value;
             _moveStartTime = Time.time;
             _moveStartPosition = transform.position;
-            
+
             var nextWaypoint = _pathfindingComponent.NextWaypoint.Value;
-            Debug.Log($"[RobotController] Robot {Id} moving to waypoint {nextWaypoint}");
+            Debug.Log($"[RobotController] Robot {Id} moving to waypoint {nextWaypoint} at world position {_moveTarget.Value}");
+        }
+        else
+        {
+            Debug.LogWarning($"[RobotController] No valid waypoint found for Robot {Id}.");
+            _currentState = RobotState.Idle;
         }
     }
     
@@ -184,15 +194,15 @@ public sealed class RobotController : MonoBehaviour, IAgent
     private void UpdateMoveToWaypoint()
     {
         if (!_moveTarget.HasValue) return;
-        
+
         float distance = Vector3.Distance(_moveStartPosition, _moveTarget.Value);
         float moveTime = distance / _moveSpeed;
         float elapsed = Time.time - _moveStartTime;
         float t = Mathf.Clamp01(elapsed / moveTime);
-        
+
         // Interpolar posición
         transform.position = Vector3.Lerp(_moveStartPosition, _moveTarget.Value, t);
-        
+
         // ¿Llegamos al waypoint?
         if (t >= 1.0f)
         {
