@@ -12,6 +12,7 @@ public static class QATestingSystem
         TestGridRenderer();
         TestValidationService();
         TestSpawnSystem();
+        TestRobotController();
     }
 
     public static void TestGridCell()
@@ -655,5 +656,140 @@ public static class QATestingSystem
         ServiceRegistry.Clear();
         
         Debug.Log("[QATestingSystem] All tests for SpawnSystem completed successfully.");
+    }
+
+    public static void TestRobotController()
+    {
+        Debug.Log("[QATestingSystem] Starting tests for RobotController.");
+
+        // Setup: Create services needed for RobotController
+        var simConfig = ScriptableObject.CreateInstance<SimulationConfig>();
+        
+        // Use reflection to set private fields in SimulationConfig
+        var widthField = simConfig.GetType().GetField("_width", BindingFlags.NonPublic | BindingFlags.Instance);
+        var heightField = simConfig.GetType().GetField("_height", BindingFlags.NonPublic | BindingFlags.Instance);
+        var cellSizeField = simConfig.GetType().GetField("_cellSize", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        widthField?.SetValue(simConfig, 5);
+        heightField?.SetValue(simConfig, 5);
+        cellSizeField?.SetValue(simConfig, 1.0f);
+
+        ServiceRegistry.Clear();
+        ServiceRegistry.Register(simConfig);
+
+        // Create minimal world using SpawnSystem
+        Vector3 testOrigin = new Vector3(0, 0, 0);
+        SpawnSystem.SpawnEmptyWorld(testOrigin, null);
+
+        // Verify services are available
+        Debug.Assert(ServiceRegistry.TryResolve<GridService>(out var gridService), "[QATestingSystem] Error: GridService not available for RobotController test.");
+        Debug.Assert(ServiceRegistry.TryResolve<PathfindingService>(out var pathfindingService), "[QATestingSystem] Error: PathfindingService not available for RobotController test.");
+
+        // Test 1: Create RobotController
+        Debug.Log("[QATestingSystem] Test 1: RobotController creation");
+        
+        var robotGameObject = new GameObject("TestRobot");
+        robotGameObject.transform.position = gridService.CellToWorld(new Vector2Int(0, 0));
+        
+        // Add PathfindingComponent first (required dependency)
+        var pathfindingComponent = robotGameObject.AddComponent<PathfindingComponent>();
+        Debug.Assert(pathfindingComponent != null, "[QATestingSystem] Error: PathfindingComponent could not be created.");
+        
+        // Add RobotController
+        var robotController = robotGameObject.AddComponent<RobotController>();
+        Debug.Assert(robotController != null, "[QATestingSystem] Error: RobotController could not be created.");
+        
+        Debug.Log("[QATestingSystem] ✓ RobotController creation test passed.");
+
+        // Test 2: IAgent interface implementation
+        Debug.Log("[QATestingSystem] Test 2: IAgent interface");
+        
+        IAgent agent = robotController;
+        Debug.Assert(agent != null, "[QATestingSystem] Error: RobotController should implement IAgent interface.");
+        
+        // ID should be readable (default is 0)
+        int agentId = agent.Id;
+        Debug.Assert(agentId >= 0, "[QATestingSystem] Error: Agent ID should be non-negative.");
+        
+        // Cell should be readable
+        Vector2Int agentCell = agent.Cell;
+        Debug.Assert(gridService.IsInside(agentCell), "[QATestingSystem] Error: Agent cell should be within grid bounds.");
+        
+        // Tick and PlanNextAction should not throw
+        agent.Tick();
+        agent.PlanNextAction();
+        
+        Debug.Log("[QATestingSystem] ✓ IAgent interface test passed.");
+
+        // Test 3: Basic movement command
+        Debug.Log("[QATestingSystem] Test 3: Basic movement command");
+        
+        // Simulate Start() call to initialize the robot
+        pathfindingComponent.SendMessage("Start");
+        robotController.SendMessage("Start");
+        
+        // Get initial position
+        Vector2Int startCell = agent.Cell;
+        Vector2Int targetCell = new Vector2Int(startCell.x + 2, startCell.y + 1);
+        
+        // Ensure target is within bounds and walkable
+        Debug.Assert(gridService.IsInside(targetCell), "[QATestingSystem] Error: Target cell should be within grid bounds.");
+        Debug.Assert(gridService.IsWalkable(targetCell), "[QATestingSystem] Error: Target cell should be walkable.");
+        
+        // Test movement command
+        bool moveResult = robotController.MoveToCell(targetCell);
+        Debug.Assert(moveResult, "[QATestingSystem] Error: MoveToCell should return true for valid target.");
+        
+        Debug.Log("[QATestingSystem] ✓ Basic movement command test passed.");
+
+        // Test 4: Pathfinding integration
+        Debug.Log("[QATestingSystem] Test 4: Pathfinding integration");
+        
+        // Check that pathfinding component has a path
+        Debug.Assert(pathfindingComponent.HasPath, "[QATestingSystem] Error: PathfindingComponent should have a path after MoveToCell.");
+        Debug.Assert(pathfindingComponent.NextWaypoint.HasValue, "[QATestingSystem] Error: PathfindingComponent should have next waypoint.");
+        
+        Debug.Log("[QATestingSystem] ✓ Pathfinding integration test passed.");
+
+        // Test 5: Multiple tick simulation (simulate movement)
+        Debug.Log("[QATestingSystem] Test 5: Movement simulation");
+        
+        int maxTicks = 50; // Prevent infinite loop
+        int tickCount = 0;
+        Vector2Int initialCell = agent.Cell;
+        
+        // Simulate multiple ticks until robot reaches destination or timeout
+        while (tickCount < maxTicks && (agent.Cell != targetCell))
+        {
+            agent.Tick();
+            tickCount++;
+        }
+        
+        Debug.Assert(tickCount < maxTicks, "[QATestingSystem] Error: Robot should reach destination within reasonable time.");
+        Debug.Log($"[QATestingSystem] Robot moved from {initialCell} to {agent.Cell} in {tickCount} ticks.");
+        
+        Debug.Log("[QATestingSystem] ✓ Movement simulation test passed.");
+
+        // Test 6: Grid occupancy management
+        Debug.Log("[QATestingSystem] Test 6: Grid occupancy");
+        
+        Vector2Int finalCell = agent.Cell;
+        
+        // Final cell should have robot occupant
+        Debug.Assert(gridService.HasOccupant(finalCell, CellOccupant.Robot), "[QATestingSystem] Error: Final cell should have Robot occupant.");
+        
+        // Initial cell should not have robot occupant (if different from final)
+        if (initialCell != finalCell)
+        {
+            Debug.Assert(!gridService.HasOccupant(initialCell, CellOccupant.Robot), "[QATestingSystem] Error: Initial cell should not have Robot occupant after movement.");
+        }
+        
+        Debug.Log("[QATestingSystem] ✓ Grid occupancy test passed.");
+
+        // Cleanup
+        UnityEngine.Object.DestroyImmediate(robotGameObject);
+        ServiceRegistry.Clear();
+        
+        Debug.Log("[QATestingSystem] All tests for RobotController completed successfully.");
     }
 }
