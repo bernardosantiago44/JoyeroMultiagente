@@ -25,7 +25,7 @@ public class GridSpawnerStructuralTest : MonoBehaviour
         SetPrivateField(spawnConfig, "_enableWallPerimeter", true);
 
         // Find GridSpawner
-        var gridSpawner = FindObjectOfType<GridSpawner>();
+        var gridSpawner = Object.FindFirstObjectByType<GridSpawner>();
         if (gridSpawner == null)
         {
             Debug.LogError("GridSpawner not found in scene!");
@@ -57,7 +57,7 @@ public class GridSpawnerStructuralTest : MonoBehaviour
         SetPrivateField(spawnConfig, "_shelfColumns", 1);
 
         // Find GridSpawner
-        var gridSpawner = FindObjectOfType<GridSpawner>();
+        var gridSpawner = Object.FindFirstObjectByType<GridSpawner>();
         if (gridSpawner == null)
         {
             Debug.LogError("GridSpawner not found in scene!");
@@ -88,7 +88,7 @@ public class GridSpawnerStructuralTest : MonoBehaviour
         SetPrivateField(spawnConfig, "_numZones", 3);
 
         // Find GridSpawner
-        var gridSpawner = FindObjectOfType<GridSpawner>();
+        var gridSpawner = Object.FindFirstObjectByType<GridSpawner>();
         if (gridSpawner == null)
         {
             Debug.LogError("GridSpawner not found in scene!");

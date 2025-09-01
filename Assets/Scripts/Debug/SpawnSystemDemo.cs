@@ -49,7 +49,7 @@ public class SpawnSystemDemo : MonoBehaviour
         }
 
         // 2. GridRenderer muestra el grid y diferencia celdas por tipo (verificación visual)
-        var gridRenderer = FindObjectOfType<GridRenderer>();
+        var gridRenderer = Object.FindFirstObjectByType<GridSpawner>();
         if (gridRenderer != null)
         {
             Debug.Log("✅ GridRenderer found - visual differentiation should be working");
@@ -169,7 +169,7 @@ public class SpawnSystemDemo : MonoBehaviour
         ServiceRegistry.Register(new ValidationService());
 
         // Crear mundo
-        var gridSpawner = FindObjectOfType<GridSpawner>();
+        var gridSpawner = Object.FindFirstObjectByType<GridSpawner>();
         SpawnSystem.SpawnEmptyWorld(Vector3.zero, gridSpawner);
 
         Debug.Log("✅ Test world created successfully!");
