@@ -156,7 +156,6 @@ MonoBehaviour:
   _showGrid: 1
   _showCellTypes: 1
   _showOccupancy: 1
-  _useTileMode: 0
   _emptyColor: {r: 0, g: 0, b: 0, a: 1}
   _wallColor: {r: 0.5, g: 0.3, b: 0.2, a: 0.8}
   _shelfColor: {r: 0.7, g: 0.5, b: 0.3, a: 0.8}
@@ -321,6 +320,55 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &655294169
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 655294171}
+  - component: {fileID: 655294170}
+  m_Layer: 0
+  m_Name: _GameBootstrap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &655294170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655294169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5abfc22e20ec3426abb124483075152b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _simulationConfig: {fileID: 11400000, guid: 8edf1492af8134599a51605209c5ff8e, type: 2}
+  _agentConfig: {fileID: 11400000, guid: d11b8b877ea6f450a8921a008927f35c, type: 2}
+  _spawnConfig: {fileID: 11400000, guid: 4efca890ff0ce4e4194b48e1153641e0, type: 2}
+  _gridSpawner: {fileID: 0}
+  _worldOrigin: {x: 0, y: 0, z: 0}
+--- !u!4 &655294171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655294169}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.42551833, y: 6.2867064, z: -4.658097}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &691924672
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,6 +555,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1495575773
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1495575775}
+  - component: {fileID: 1495575774}
+  m_Layer: 0
+  m_Name: _GridSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1495575774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495575773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dea80efcc7d646819a67438c45a4ddb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardRenderer: {fileID: 0}
+  rupeePrefab: {fileID: 0}
+  parent: {fileID: 0}
+  cellSize: 1
+  count: 20
+  randomYRotation: 0
+  spawnYOffset: 0
+  seed: 0
+--- !u!4 &1495575775
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495575773}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.42551833, y: 6.2867064, z: -4.658097}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -515,3 +615,5 @@ SceneRoots:
   - {fileID: 146016340}
   - {fileID: 1141101572}
   - {fileID: 58271422}
+  - {fileID: 655294171}
+  - {fileID: 1495575775}
